@@ -8,7 +8,8 @@ Extract links from text version of any file
     > Time stamp & some other data will also be saved
 
 # Required Libraries:
-- colorama  :   `pip install colorama`
+Installation: `pip install library_name`
+- colorama
 
 # Developer
 - Hussain Abbas
