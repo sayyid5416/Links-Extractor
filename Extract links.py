@@ -1,6 +1,8 @@
 # Imports
-import os, sys
+import os, sys, subprocess
 from datetime import datetime
+
+os.system('color 07')
 
 
 # Main Extraction class
@@ -8,16 +10,22 @@ class Extract_Links:
 
     def __init__(self):
         super().__init__()
-
-        # TAKE User Input
-        self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.txt):  {Fore.LIGHTBLUE_EX}')
-        self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
-        # Data in file
-        self.total_lines_num = self.total_words_num = self.total_links_num =  0
-        self.links_in_the_file_list = []
-        # MAIN
-        self.main_extracting_fctn()
-
+        
+        try:
+            # Asks file name
+            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.txt): {Fore.LIGHTBLUE_EX}')
+            self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
+            
+            # Init: Additional Data
+            self.total_lines_num = self.total_words_num = self.total_links_num =  0
+            self.links_in_the_file_list = []
+            
+            # MAIN
+            self.main_extracting_fctn()
+            
+        except:
+            print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
+        
 
     # Main Function
     def main_extracting_fctn(self):
@@ -104,30 +112,80 @@ class Extract_Links:
         return f'{current_date}   {current_time}'
 
 
-################################################################### RUN
-if __name__ == "__main__":
+
+# General class
+class General_Class:
     
-    # IMPORT: Third party modules
-    try:
-        from colorama import Fore, Style
-    except Exception as e:
-        # Console Properties
-        os.system('color 0c')
-        os.system('title [Error] Missing modules')
-        input(f'=> [Error] {e}. Press Enter to exit...')
+    def __init__(self) -> None:
+        """
+        This class contains general methods
+        """        
+        pass
+
+    
+    @staticmethod
+    def import_modules(list_of_modules):
+        """
+        This function install the modules
+
+        Args:
+            list_of_modules (list): These modules will be installed, if not present
+        """
+        
+        # Start
+        print('=> Modules installation started <=\n')
+        
+        # Installing modules
+        for module in list_of_modules:
+            subprocess.run(
+                f'pip install {module}'
+            )
+        
+        # Success
+        print('\n=> All modules installed successfully <=')
+
+
+
+################################################################### Third party modules
+
+# Import: Third party modules
+try:
+    from colorama import Fore
+
+# Installing missing imports
+except:
+    # Asks permission
+    if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
+        
+        # Modules to install
+        modules_list = [
+            'colorama'
+        ]                       
+        
+        # Process
+        print('\n')
+        print('*' * 50)
+        try:                                            # Installing
+            General_Class.import_modules(modules_list)
+        except Exception as e:                          # Error catching
+            input(f'=> [Error]: {e}. Press enter to exit...')
+            sys.exit()
+        else:                                           # Importing
+            from colorama import Fore
+            input('> Press Enter to continue...')
+        print('*' * 50)
+        print('\n\n')
+
+    else:
         sys.exit()
         
-    # Main Program
-    else:
-        # Console Properties
-        os.system('color 0f')
-        os.system('title Extract links from a file')
 
-        # Main Extraction
-        print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
-        while True:
-            try:
-                Extract_Links()
-            except:
-                print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
-            print('\n\n')
+################################################################### RUN
+
+if __name__ == "__main__":
+    
+    # Main Program
+    os.system('title Extract links from a file')
+    while True:
+        Extract_Links()
+        print('\n\n')
