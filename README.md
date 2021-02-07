@@ -15,3 +15,24 @@ Installation: `pip install library_name`
 - Hussain Abbas
 - [Contact on telegram](https://t.me/hussain5416)
 - [GitHub Repo](https://github.com/hussain5416/Extract_Links)
+
+# Changelog
+## Version 1.1
+- Added functionality to install missing [required libraries](https://github.com/hussain5416/Extract_Links#required-libraries) automatically.
+- Error checking improvements
+- Source code improvements
+- Minor bug fixes
+
+## Version 1.0
+#### Added features:
+- Extract links from any file
+- Extracted links will be saved to a new created file
+- Additional data extracted:
+    - Time stamp
+    - Total lines
+    - Total words
+    - Total links 
+- Colorful output would be shown
+#### Bug fixes:
+- Crash if file missing
+- Some minor bugs
