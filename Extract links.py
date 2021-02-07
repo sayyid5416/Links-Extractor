@@ -1,5 +1,5 @@
 # Imports
-import os, sys
+import os, sys, subprocess
 from datetime import datetime
 
 
@@ -104,21 +104,67 @@ class Extract_Links:
         return f'{current_date}   {current_time}'
 
 
+
+
+# General class
+class General_Class:
+    
+    def __init__(self) -> None:
+        """
+        This class contains general methods
+        """        
+        pass
+
+    
+    @staticmethod
+    def import_modules(list_of_modules):
+        """
+        This function install the modules
+
+        Args:
+            list_of_modules (list): These modules will be installed, if not present
+        """
+        
+        # Start
+        print('\n\n=> Modules installation started <=\n')
+        
+        # Installing modules
+        for module in list_of_modules:
+            subprocess.run(
+                f'pip install {module}'
+            )
+        
+        # Success
+        print('\n=> All modules installed successfully <=\n\n')
+
+
+
+
+
 ################################################################### RUN
+
 if __name__ == "__main__":
     
     # IMPORT: Third party modules
     try:
         from colorama import Fore, Style
-    except Exception as e:
-        # Console Properties
-        os.system('color 0c')
-        os.system('title [Error] Missing modules')
-        input(f'=> [Error] {e}. Press Enter to exit...')
-        sys.exit()
+    except:
+        os.system('color 07')
+        os.system('title Installing missing modules...')
+        user_input = input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ')
+        if user_input == 'y':
+            # Install missing modules
+            modules_list = [
+                'colorama'
+            ]
+            General_Class.import_modules(modules_list)
+            from colorama import Fore, Style
+            input('> Press Enter to continue...')
+        else:
+            sys.exit()
         
     # Main Program
-    else:
+    finally:
         # Console Properties
         os.system('color 0f')
         os.system('title Extract links from a file')
