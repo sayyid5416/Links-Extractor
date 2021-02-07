@@ -26,9 +26,6 @@ class Extract_Links:
         except:
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
-        finally:
-            print('\n\n')
-
 
     # Main Function
     def main_extracting_fctn(self):
@@ -162,8 +159,7 @@ except:
         
         # Modules to install
         modules_list = [
-            'colorama',
-            'subprocess'
+            'colorama'
         ]                       
         
         # Process
@@ -192,3 +188,4 @@ if __name__ == "__main__":
     os.system('title Extract links from a file')
     while True:
         Extract_Links()
+        print('\n\n')
