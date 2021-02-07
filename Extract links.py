@@ -1,7 +1,6 @@
 # Imports
-import os
+import os, sys
 from datetime import datetime
-from colorama import Fore, Style
 
 
 # Main Extraction class
@@ -105,16 +104,30 @@ class Extract_Links:
         return f'{current_date}   {current_time}'
 
 
+################################################################### RUN
 if __name__ == "__main__":
-    # Console Properties
-    os.system('color 0f')
-    os.system('title Extract links from a file')
+    
+    # IMPORT: Third party modules
+    try:
+        from colorama import Fore, Style
+    except Exception as e:
+        # Console Properties
+        os.system('color 0c')
+        os.system('title [Error] Missing modules')
+        input(f'=> [Error] {e}. Press Enter to exit...')
+        sys.exit()
+        
+    # Main Program
+    else:
+        # Console Properties
+        os.system('color 0f')
+        os.system('title Extract links from a file')
 
-    # Main Extraction
-    print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
-    while True:
-        try:
-            Extract_Links()
-        except:
-            print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
-        print('\n\n')
+        # Main Extraction
+        print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
+        while True:
+            try:
+                Extract_Links()
+            except:
+                print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
+            print('\n\n')
