@@ -25,8 +25,8 @@ class Extract_Links:
         try:
             self.get_data_from_file()       # Read from file
             self.write_data_to_file()       # Write to file
-        except Exception as e:
-            print(f'{Fore.RED}---> Error occured: {e}\n     File & Program should be in the same location.')
+        except FileNotFoundError:
+            print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
             os.system(f'"{self.file_to_save_extracted_links}"')      # Open saved extracted links file
 
@@ -74,7 +74,7 @@ class Extract_Links:
 
             print(
                 f'{Fore.BLUE}{conclusion}\n'
-                f'{Fore.YELLOW}---> Data saved to "{self.file_to_save_extracted_links}"'
+                f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
             )
 
 
@@ -113,5 +113,8 @@ if __name__ == "__main__":
     # Main Extraction
     print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
     while True:
-        Extract_Links()
+        try:
+            Extract_Links()
+        except:
+            print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         print('\n\n')
