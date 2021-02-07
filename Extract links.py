@@ -2,7 +2,12 @@
 import os, sys, subprocess
 from datetime import datetime
 
-os.system('color 07')
+
+# Console properties
+if __name__ == "__main__":
+    os.system('color 07')
+    os.system('title Extract links from a file')
+
 
 
 # Main Extraction class
@@ -182,10 +187,8 @@ except:
 
 ################################################################### RUN
 
+# Main Program
 if __name__ == "__main__":
-    
-    # Main Program
-    os.system('title Extract links from a file')
     while True:
         Extract_Links()
         print('\n\n')
