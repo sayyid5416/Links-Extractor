@@ -8,15 +8,24 @@ class Extract_Links:
 
     def __init__(self):
         super().__init__()
-
-        # TAKE User Input
-        self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.txt):  {Fore.LIGHTBLUE_EX}')
-        self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
-        # Data in file
-        self.total_lines_num = self.total_words_num = self.total_links_num =  0
-        self.links_in_the_file_list = []
-        # MAIN
-        self.main_extracting_fctn()
+        
+        try:
+            # Asks file name
+            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.txt): {Fore.LIGHTBLUE_EX}')
+            self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
+            
+            # Init: Additional Data
+            self.total_lines_num = self.total_words_num = self.total_links_num =  0
+            self.links_in_the_file_list = []
+            
+            # MAIN
+            self.main_extracting_fctn()
+            
+        except:
+            print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
+        
+        finally:
+            print('\n\n')
 
 
     # Main Function
@@ -145,35 +154,39 @@ class General_Class:
 
 if __name__ == "__main__":
     
-    # IMPORT: Third party modules
+    # Console
+    os.system('color 07')
+    os.system('title Extract links from a file')
+    
+    # Import: Third party modules
     try:
-        from colorama import Fore, Style
+        from colorama import Fore
+    
+    # Installing missing imports
     except:
-        os.system('color 07')
-        os.system('title Installing missing modules...')
-        user_input = input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ')
-        if user_input == 'y':
-            # Install missing modules
+        # Asks permission
+        if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
+            
+            # Modules to install
             modules_list = [
                 'colorama'
-            ]
-            General_Class.import_modules(modules_list)
-            from colorama import Fore, Style
-            input('> Press Enter to continue...')
+            ]                       
+            
+            # Process
+            try:                                            # Installing
+                General_Class.import_modules(modules_list)
+            except Exception as e:                          # Error catching
+                input(f'=> [Error]: {e}. Press enter to exit...')
+                sys.exit()
+            else:                                           # Importing
+                from colorama import Fore
+                input('> Press Enter to continue...')
+                print('\n')
+
         else:
             sys.exit()
         
     # Main Program
     finally:
-        # Console Properties
-        os.system('color 0f')
-        os.system('title Extract links from a file')
-
-        # Main Extraction
-        print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
         while True:
-            try:
-                Extract_Links()
-            except:
-                print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
-            print('\n\n')
+            Extract_Links()
