@@ -38,11 +38,11 @@ class Extract_Links:
         # Getting data
         with open(self.original_file_name) as orig_file:
             for line in orig_file.readlines():
-                self.total_lines_num += 1            # increasing lines number
+                self.total_lines_num += 1            # increase lines number
                 for word in line.split(' '):
-                    self.total_words_num += 1        # increasing words number
+                    self.total_words_num += 1        # increase words number
                     if 'http' in word:
-                        self.total_links_num += 1    # increasing links number
+                        self.total_links_num += 1    # increase links number
                         self.links_in_the_file_list.append(word)
                         print(f'{Fore.GREEN}--- Extracted --- {word}', end='')
 
@@ -52,13 +52,30 @@ class Extract_Links:
         Function to write data to file
         """
         with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
-            f_new.writelines(f'● Links extracted from "{self.original_file_name}"\n● {self.get_current_date_and_time()}\n\n')
+            # Heading
+            f_new.writelines(
+                f'● Links extracted from "{self.original_file_name}"\n'
+                f'● {self.get_current_date_and_time()}\n\n'
+            )
+
+            # Links
             for link in self.links_in_the_file_list:
                 f_new.writelines(link)
-            conclusion = f'> Links found: {self.total_links_num}\n> Total words: {self.total_words_num}\n> Total lines: {self.total_lines_num}'
+
+            # Conclusion
+            conclusion = (
+                f'> Links found: {self.total_links_num}\n'
+                f'> Total words: {self.total_words_num}\n'
+                f'> Total lines: {self.total_lines_num}'
+            )
+
             f_new.writelines(f'{conclusion}\n')
             f_new.writelines("````````````````````````````````````````````````````````````````````````````````````````````````````\n\n\n")
-            print(f'{Fore.BLUE}{conclusion}\n{Fore.YELLOW}---> Data saved to "{self.file_to_save_extracted_links}"')
+
+            print(
+                f'{Fore.BLUE}{conclusion}\n'
+                f'{Fore.YELLOW}---> Data saved to "{self.file_to_save_extracted_links}"'
+            )
 
 
     @staticmethod
