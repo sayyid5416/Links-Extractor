@@ -2,6 +2,8 @@
 import os, sys, subprocess
 from datetime import datetime
 
+os.system('color 07')
+
 
 # Main Extraction class
 class Extract_Links:
@@ -114,7 +116,6 @@ class Extract_Links:
 
 
 
-
 # General class
 class General_Class:
     
@@ -135,7 +136,7 @@ class General_Class:
         """
         
         # Start
-        print('\n\n=> Modules installation started <=\n')
+        print('=> Modules installation started <=\n')
         
         # Installing modules
         for module in list_of_modules:
@@ -144,49 +145,50 @@ class General_Class:
             )
         
         # Success
-        print('\n=> All modules installed successfully <=\n\n')
+        print('\n=> All modules installed successfully <=')
 
 
 
+################################################################### Third party modules
 
+# Import: Third party modules
+try:
+    from colorama import Fore
+
+# Installing missing imports
+except:
+    # Asks permission
+    if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
+        
+        # Modules to install
+        modules_list = [
+            'colorama',
+            'subprocess'
+        ]                       
+        
+        # Process
+        print('\n')
+        print('*' * 50)
+        try:                                            # Installing
+            General_Class.import_modules(modules_list)
+        except Exception as e:                          # Error catching
+            input(f'=> [Error]: {e}. Press enter to exit...')
+            sys.exit()
+        else:                                           # Importing
+            from colorama import Fore
+            input('> Press Enter to continue...')
+        print('*' * 50)
+        print('\n\n')
+
+    else:
+        sys.exit()
+        
 
 ################################################################### RUN
 
 if __name__ == "__main__":
     
-    # Console
-    os.system('color 07')
-    os.system('title Extract links from a file')
-    
-    # Import: Third party modules
-    try:
-        from colorama import Fore
-    
-    # Installing missing imports
-    except:
-        # Asks permission
-        if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
-            
-            # Modules to install
-            modules_list = [
-                'colorama'
-            ]                       
-            
-            # Process
-            try:                                            # Installing
-                General_Class.import_modules(modules_list)
-            except Exception as e:                          # Error catching
-                input(f'=> [Error]: {e}. Press enter to exit...')
-                sys.exit()
-            else:                                           # Importing
-                from colorama import Fore
-                input('> Press Enter to continue...')
-                print('\n')
-
-        else:
-            sys.exit()
-        
     # Main Program
-    finally:
-        while True:
-            Extract_Links()
+    os.system('title Extract links from a file')
+    while True:
+        Extract_Links()
