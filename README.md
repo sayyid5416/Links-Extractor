@@ -6,6 +6,8 @@ Extract links from text version of any file
     > Alternatively, you can provide relative/absolute paths too
 - All extracted links will be stored in a file.
     > Time stamp & some other data will also be saved
+- Required libraries will be automatically installed after [v1.1](https://github.com/hussain5416/Extract_Links/releases/tag/v1.1)
+- [Detailed features & changelog](https://github.com/hussain5416/Extract_Links/releases)
 
 # Required Libraries:
 Installation: `pip install library_name`
@@ -15,23 +17,3 @@ Installation: `pip install library_name`
 - Hussain Abbas
 - [Contact on telegram](https://t.me/hussain5416)
 - [GitHub Repo](https://github.com/hussain5416/Extract_Links)
-
-# Changelog
-## Version 1.1
-- Added functionality to install missing [required libraries](https://github.com/hussain5416/Extract_Links#required-libraries) automatically.
-- Error checking improvements
-- Source code improvements
-- Minor bug fixes
-
-## Version 1.0
-- Extract links from any file
-- Extracted links will be saved to a new created file
-- Additional data extracted:
-    - Time stamp
-    - Total lines
-    - Total words
-    - Total links 
-- Colorful output would be shown
-- Bug fixes:
-    > - Crash if file missing
-    > - Some minor bugs
