@@ -1,7 +1,6 @@
 # Imports
-import os
+import os, sys
 from datetime import datetime
-from colorama import Fore, Style
 
 
 # Main Extraction class
@@ -25,8 +24,8 @@ class Extract_Links:
         try:
             self.get_data_from_file()       # Read from file
             self.write_data_to_file()       # Write to file
-        except Exception as e:
-            print(f'{Fore.RED}---> Error occured: {e}\n     File & Program should be in the same location.')
+        except FileNotFoundError:
+            print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
             os.system(f'"{self.file_to_save_extracted_links}"')      # Open saved extracted links file
 
@@ -74,7 +73,7 @@ class Extract_Links:
 
             print(
                 f'{Fore.BLUE}{conclusion}\n'
-                f'{Fore.YELLOW}---> Data saved to "{self.file_to_save_extracted_links}"'
+                f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
             )
 
 
@@ -105,13 +104,30 @@ class Extract_Links:
         return f'{current_date}   {current_time}'
 
 
+################################################################### RUN
 if __name__ == "__main__":
-    # Console Properties
-    os.system('color 0f')
-    os.system('title Extract links from a file')
+    
+    # IMPORT: Third party modules
+    try:
+        from colorama import Fore, Style
+    except Exception as e:
+        # Console Properties
+        os.system('color 0c')
+        os.system('title [Error] Missing modules')
+        input(f'=> [Error] {e}. Press Enter to exit...')
+        sys.exit()
+        
+    # Main Program
+    else:
+        # Console Properties
+        os.system('color 0f')
+        os.system('title Extract links from a file')
 
-    # Main Extraction
-    print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
-    while True:
-        Extract_Links()
-        print('\n\n')
+        # Main Extraction
+        print(f'{Fore.YELLOW + Style.BRIGHT}Note: File containing links must be in the same directory as this python file.')
+        while True:
+            try:
+                Extract_Links()
+            except:
+                print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
+            print('\n\n')
