@@ -24,7 +24,6 @@ Installation: `pip install library_name`
 - Minor bug fixes
 
 ## Version 1.0
-#### Added features:
 - Extract links from any file
 - Extracted links will be saved to a new created file
 - Additional data extracted:
@@ -33,6 +32,6 @@ Installation: `pip install library_name`
     - Total words
     - Total links 
 - Colorful output would be shown
-#### Bug fixes:
-- Crash if file missing
-- Some minor bugs
+- Bug fixes:
+    > - Crash if file missing
+    > - Some minor bugs
