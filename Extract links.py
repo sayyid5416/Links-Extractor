@@ -1,5 +1,5 @@
 # Imports
-import os, sys, subprocess
+import os, sys, subprocess, re
 from datetime import datetime
 
 
@@ -23,7 +23,6 @@ class Extract_Links:
             
             # Init: Additional Data
             self.total_lines_num = self.total_words_num = self.total_links_num =  0
-            self.links_in_the_file_list = []
             
             # MAIN
             self.main_extracting_fctn()
@@ -47,16 +46,18 @@ class Extract_Links:
         """
         Function to read data from file
         """
+        
         # Getting data
         with open(self.original_file_name) as orig_file:
-            for line in orig_file.readlines():
-                self.total_lines_num += 1            # increase lines number
-                for word in line.split(' '):
-                    self.total_words_num += 1        # increase words number
-                    if 'http' in word:
-                        self.total_links_num += 1    # increase links number
-                        self.links_in_the_file_list.append(word)
-                        print(f'{Fore.GREEN}--- Extracted --- {word}', end='')
+            data_in_file = orig_file.read()
+            
+            # Links list
+            self.links_in_the_file_list = re.findall(r'(https?://[^\s]+)', data_in_file)
+            
+            # Additional data
+            self.total_links_num = len(self.links_in_the_file_list)      # Total links
+            self.total_words_num = len(data_in_file.split(' '))          # Total words
+            self.total_lines_num = len(data_in_file.split('\n'))            # Total lines
 
 
     def write_data_to_file(self):
@@ -72,7 +73,8 @@ class Extract_Links:
 
             # Links
             for link in self.links_in_the_file_list:
-                f_new.writelines(link)
+                print(f'{Fore.GREEN}--- Extracted --- {link}')
+                f_new.writelines(f'{link}\n')
 
             # Conclusion
             conclusion = (
