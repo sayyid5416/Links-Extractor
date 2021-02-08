@@ -72,9 +72,9 @@ class Extract_Links:
             )
 
             # Links
-            for link in self.links_in_the_file_list:
-                print(f'{Fore.GREEN}--- Extracted --- {link}')
-                f_new.writelines(f'{link}\n')
+            for num, link in enumerate(self.links_in_the_file_list, start=1):
+                print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
+                f_new.writelines(f'{num} - {link}\n')
 
             # Conclusion
             conclusion = (
