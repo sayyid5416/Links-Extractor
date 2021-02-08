@@ -1,6 +1,6 @@
 # Extract Links
 Extract links from text version of any file
-- File type doesn't matter.
+- All file types are supported _(but not all encoded files)_.
     > .txt, .jpg, .pdf, .mkv, .html etc _(only from their text versions)_
 - File should be in the same directory.
     > Alternatively, you can provide relative/absolute paths too
