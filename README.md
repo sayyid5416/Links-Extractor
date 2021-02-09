@@ -1,6 +1,7 @@
 # Extract Links
 Extract links from text version of any file
-- File type doesn't matter.
+![extract-links](https://user-images.githubusercontent.com/78584556/107383346-e9bf1a00-6b16-11eb-9a09-0c19535b3fd8.jpg)
+- All file types are supported _(but not all encoded files)_.
     > .txt, .jpg, .pdf, .mkv, .html etc _(only from their text versions)_
 - File should be in the same directory.
     > Alternatively, you can provide relative/absolute paths too
