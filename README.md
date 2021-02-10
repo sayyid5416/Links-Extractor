@@ -8,7 +8,7 @@ Extract links from text version of any file
     > Alternatively, you can provide relative/absolute paths
 - Extracted links will be stored in a file, stored in same location as this program.
     > Time stamp & some additional data will also be saved
-- Required libraries will be automatically installed after [v1.1](https://github.com/hussain5416/Extract_Links/releases/tag/v1.1)
+- Required libraries will be installed automatically after [v1.1](https://github.com/hussain5416/Extract_Links/releases/tag/v1.1)
 - [Detailed features & changelog](https://github.com/hussain5416/Extract_Links/releases)
 
 # Required Libraries:
