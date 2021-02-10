@@ -1,5 +1,5 @@
 # Imports
-import os, sys, subprocess, re
+import os, sys, subprocess, re, threading
 from datetime import datetime
 
 app_version = '1.3'
@@ -48,7 +48,12 @@ class Extract_Links:
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
-            os.system(f'"{self.file_to_save_extracted_links}"')      # Open saved extracted links file
+            # Open saved extracted links file
+            thread_to_open_file = threading.Thread(
+                target=lambda : os.system(f'"{self.file_to_save_extracted_links}"'),
+            )
+            thread_to_open_file.setDaemon(True)
+            thread_to_open_file.start()
 
 
     def get_data_from_file(self):
