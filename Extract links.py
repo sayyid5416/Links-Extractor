@@ -1,12 +1,13 @@
 # Imports
-import os, sys, subprocess, re
+import os, sys, subprocess, re, threading
 from datetime import datetime
 
+app_version = '1.3'
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
-    os.system('title Extract links from a file')
+    os.system(f'title Extract links from a file [v{app_version}]')
 
 
 
@@ -17,9 +18,17 @@ class Extract_Links:
         super().__init__()
         
         try:
-            # Asks file name
-            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.txt): {Fore.LIGHTBLUE_EX}')
-            self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
+            # Original file
+            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}').replace(
+                '/',
+                '\\'
+            ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+
+            # File to save
+            file_name = self.original_file_name
+            if '\\' in file_name:
+                file_name = file_name.split('\\')[-1]
+            self.file_to_save_extracted_links = f'Links - {file_name}.txt'
             
             # Init: Additional Data
             self.total_lines_num = self.total_words_num = self.total_links_num =  0
@@ -39,7 +48,10 @@ class Extract_Links:
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
-            os.system(f'"{self.file_to_save_extracted_links}"')      # Open saved extracted links file
+            # Open saved extracted links file
+            self.open_file(
+                file_to_open=self.file_to_save_extracted_links
+            )
 
 
     def get_data_from_file(self):
@@ -47,17 +59,38 @@ class Extract_Links:
         Function to read data from file
         """
         
-        # Getting data
-        with open(self.original_file_name) as orig_file:
-            data_in_file = orig_file.read()
+        # PROPER Function
+        def  fctn(self, a):
+            data_in_file = a
             
             # Links list
-            self.links_in_the_file_list = re.findall(r'(https?://[^\s]+)', data_in_file)
+            list_of_all_links = re.findall(
+                r'(https?://[^\s]+)',
+                data_in_file
+            )                                   # List of all links present in the file
+            self.extracted_links_list = []      # List for links after duplicate removal
+            check_list = []                     # List for main links
             
+            # Duplicate removal
+            for link in list_of_all_links:
+                main_link = str(link).removeprefix(str(link).split('://')[0])   # Link w/o 'http' like things
+                if main_link not in check_list:
+                    check_list.append(main_link)
+                    self.extracted_links_list.append(link)      # Addding item to main list :: if its main_link was not added
+                        
             # Additional data
-            self.total_links_num = len(self.links_in_the_file_list)      # Total links
+            self.total_links_num = len(self.extracted_links_list)        # Total links
             self.total_words_num = len(data_in_file.split(' '))          # Total words
-            self.total_lines_num = len(data_in_file.split('\n'))            # Total lines
+            self.total_lines_num = len(data_in_file.split('\n'))         # Total lines
+        
+        
+        # Getting data
+        try:
+            with open(self.original_file_name, encoding='utf-8') as orig_file:
+                fctn(self, orig_file.read())
+        except:
+            with open(self.original_file_name) as orig_file:
+                fctn(self, orig_file.read())
 
 
     def write_data_to_file(self):
@@ -72,7 +105,7 @@ class Extract_Links:
             )
 
             # Links
-            for num, link in enumerate(self.links_in_the_file_list, start=1):
+            for num, link in enumerate(self.extracted_links_list, start=1):
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
                 f_new.writelines(f'{num} - {link}\n')
 
@@ -119,6 +152,20 @@ class Extract_Links:
         return f'{current_date}   {current_time}'
 
 
+    @staticmethod
+    def open_file(file_to_open):
+        """
+        This function launches a file using subprocess module
+            - Threading is used to keep the app functional
+        """
+        
+        file_thread = threading.Thread(
+            target=lambda : os.system(f'""{file_to_open}""'),
+        )
+        file_thread.setDaemon(True)
+        file_thread.start()
+    
+    
 
 # General class
 class General_Class:
