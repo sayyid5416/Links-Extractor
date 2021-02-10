@@ -19,8 +19,11 @@ class Extract_Links:
         
         try:
             # Original file
-            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}')
-            
+            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}').replace(
+                '/',
+                '\\'
+            ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+
             # File to save
             self.file_name = self.original_file_name
             if '\\' in self.file_name:
@@ -33,7 +36,7 @@ class Extract_Links:
             # MAIN
             self.main_extracting_fctn()
             
-        except:
+        except KeyError:
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
 
