@@ -62,19 +62,25 @@ class Extract_Links:
             data_in_file = a
             
             # Links list
-            list_of_all_links_in_file = re.findall(
+            list_of_all_links = re.findall(
                 r'(https?://[^\s]+)',
                 data_in_file
-            )
+            )                                   # List of all links present in the file
+            self.extracted_links_list = []      # List for links after duplicate removal
+            check_list = []                     # List for main links
             
-            # Removing duplicates
-            self.links_in_the_file_list = []
-            [self.links_in_the_file_list.append(x) for x in list_of_all_links_in_file if x not in self.links_in_the_file_list]
-            
+            # Duplicate removal
+            for link in list_of_all_links:
+                main_link = str(link).removeprefix(str(link).split('://')[0])   # Link w/o 'http' like things
+                if main_link not in check_list:
+                    check_list.append(main_link)
+                    self.extracted_links_list.append(link)      # Addding item to main list :: if its main_link was not added
+                        
             # Additional data
-            self.total_links_num = len(self.links_in_the_file_list)      # Total links
+            self.total_links_num = len(self.extracted_links_list)        # Total links
             self.total_words_num = len(data_in_file.split(' '))          # Total words
             self.total_lines_num = len(data_in_file.split('\n'))         # Total lines
+        
         
         # Getting data
         try:
@@ -97,7 +103,7 @@ class Extract_Links:
             )
 
             # Links
-            for num, link in enumerate(self.links_in_the_file_list, start=1):
+            for num, link in enumerate(self.extracted_links_list, start=1):
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
                 f_new.writelines(f'{num} - {link}\n')
 
