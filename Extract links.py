@@ -62,10 +62,14 @@ class Extract_Links:
             data_in_file = a
             
             # Links list
-            self.links_in_the_file_list = re.findall(
+            list_of_all_links_in_file = re.findall(
                 r'(https?://[^\s]+)',
                 data_in_file
             )
+            
+            # Removing duplicates
+            self.links_in_the_file_list = []
+            [self.links_in_the_file_list.append(x) for x in list_of_all_links_in_file if x not in self.links_in_the_file_list]
             
             # Additional data
             self.total_links_num = len(self.links_in_the_file_list)      # Total links
