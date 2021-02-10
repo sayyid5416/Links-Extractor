@@ -57,17 +57,28 @@ class Extract_Links:
         Function to read data from file
         """
         
-        # Getting data
-        with open(self.original_file_name) as orig_file:
-            data_in_file = orig_file.read()
+        # PROPER Function
+        def  fctn(self, a):
+            data_in_file = a
             
             # Links list
-            self.links_in_the_file_list = re.findall(r'(https?://[^\s]+)', data_in_file)
+            self.links_in_the_file_list = re.findall(
+                r'(https?://[^\s]+)',
+                data_in_file
+            )
             
             # Additional data
             self.total_links_num = len(self.links_in_the_file_list)      # Total links
             self.total_words_num = len(data_in_file.split(' '))          # Total words
-            self.total_lines_num = len(data_in_file.split('\n'))            # Total lines
+            self.total_lines_num = len(data_in_file.split('\n'))         # Total lines
+        
+        # Getting data
+        try:
+            with open(self.original_file_name, encoding='utf-8') as orig_file:
+                fctn(self, orig_file.read())
+        except:
+            with open(self.original_file_name) as orig_file:
+                fctn(self, orig_file.read())
 
 
     def write_data_to_file(self):
