@@ -25,10 +25,10 @@ class Extract_Links:
             ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
 
             # File to save
-            self.file_name = self.original_file_name
-            if '\\' in self.file_name:
-                self.file_name = self.file_name.split('\\')[-1]
-            self.file_to_save_extracted_links = f'Links - {self.file_name}.txt'
+            file_name = self.original_file_name
+            if '\\' in file_name:
+                file_name = file_name.split('\\')[-1]
+            self.file_to_save_extracted_links = f'Links - {file_name}.txt'
             
             # Init: Additional Data
             self.total_lines_num = self.total_words_num = self.total_links_num =  0
@@ -36,7 +36,7 @@ class Extract_Links:
             # MAIN
             self.main_extracting_fctn()
             
-        except KeyError:
+        except:
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
 
@@ -49,11 +49,7 @@ class Extract_Links:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
             # Open saved extracted links file
-            thread_to_open_file = threading.Thread(
-                target=lambda : os.system(f'"{self.file_to_save_extracted_links}"'),
-            )
-            thread_to_open_file.setDaemon(True)
-            thread_to_open_file.start()
+            self.open_file(self.file_to_save_extracted_links)
 
 
     def get_data_from_file(self):
@@ -133,6 +129,20 @@ class Extract_Links:
         return f'{current_date}   {current_time}'
 
 
+    @staticmethod
+    def open_file(file_to_open):
+        """
+        This function launches a file using subprocess module
+            - Threading is used to keep the app functional
+        """
+        
+        file_thread = threading.Thread(
+            target=lambda : os.system(f'"{file_to_open}"'),
+        )
+        file_thread.setDaemon(True)
+        file_thread.start()
+    
+    
 
 # General class
 class General_Class:
