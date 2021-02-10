@@ -2,11 +2,12 @@
 import os, sys, subprocess, re
 from datetime import datetime
 
+app_version = '1.3'
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
-    os.system('title Extract links from a file')
+    os.system(f'title Extract links from a file [v{app_version}]')
 
 
 
@@ -18,7 +19,7 @@ class Extract_Links:
         
         try:
             # Asks file name
-            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.txt): {Fore.LIGHTBLUE_EX}')
+            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}')
             self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
             
             # Init: Additional Data
