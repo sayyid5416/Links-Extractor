@@ -18,9 +18,14 @@ class Extract_Links:
         super().__init__()
         
         try:
-            # Asks file name
+            # Original file
             self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}')
-            self.file_to_save_extracted_links = f'Links - {self.original_file_name}.txt'
+            
+            # File to save
+            self.file_name = self.original_file_name
+            if '\\' in self.file_name:
+                self.file_name = self.file_name.split('\\')[-1]
+            self.file_to_save_extracted_links = f'Links - {self.file_name}.txt'
             
             # Init: Additional Data
             self.total_lines_num = self.total_words_num = self.total_links_num =  0
