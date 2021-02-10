@@ -49,7 +49,9 @@ class Extract_Links:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
             # Open saved extracted links file
-            self.open_file(self.file_to_save_extracted_links)
+            self.open_file(
+                file_to_open=self.file_to_save_extracted_links
+            )
 
 
     def get_data_from_file(self):
@@ -158,7 +160,7 @@ class Extract_Links:
         """
         
         file_thread = threading.Thread(
-            target=lambda : os.system(f'"{file_to_open}"'),
+            target=lambda : os.system(f'""{file_to_open}""'),
         )
         file_thread.setDaemon(True)
         file_thread.start()
