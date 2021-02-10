@@ -3,7 +3,7 @@ Extract links from text version of any file
 ![extract-links](https://user-images.githubusercontent.com/78584556/107383346-e9bf1a00-6b16-11eb-9a09-0c19535b3fd8.jpg)
 - Links extraction
     > - **All text based files** are supported, like txt, json, csv, html, py e.t.c
-    > - All duplicates would be removed
+    > - Duplicates would be removed
 - File should be in the same directory.
     > Alternatively, you can provide relative/absolute paths
 - Extracted links will be stored in a file, stored in same location as this program.
