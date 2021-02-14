@@ -3,11 +3,12 @@ import os, sys, subprocess, re, threading
 from datetime import datetime
 
 app_version = '1.3'
+github_link = 'https://github.com/hussain5416/extract_links'
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
-    os.system(f'title Extract links from a file [v{app_version}]')
+    os.system(f'title Extract links from a file [v{app_version}] -- {github_link}')
 
 
 
