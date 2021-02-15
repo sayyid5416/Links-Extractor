@@ -2,6 +2,8 @@
 import os, sys, subprocess, re, threading
 from datetime import datetime
 
+from colorama.ansi import Style
+
 app_version = '1.5'
 github_link = 'https://github.com/hussain5416/extract_links'
 
@@ -307,6 +309,7 @@ except:
 
 # Main Program
 if __name__ == "__main__":
+    print(Style.BRIGHT, end='')
     while True:
         Extract_Links()
         print('\n\n')
