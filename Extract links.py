@@ -62,7 +62,7 @@ class Extract_Links:
         def  fctn(self, data_in_file):
             
             # Extracting links from file
-            def extract_links_proper(self, regex_string:str):
+            def extract_links_proper(regex_string:str, self=self):
                 """
                 This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
                 """
@@ -77,18 +77,24 @@ class Extract_Links:
 
                 return extracted_list
             
-            web_links = extract_links_proper(self, r'(https?://[\S]+)')             # Web-links
-            ftp_list = extract_links_proper(self, r'(ftp://[\S]+)')                 # FTP-links
-            email_links = extract_links_proper(self, r'(mailto: *[\S]+)')           # Email-links
+            web_links = extract_links_proper(
+                r'(https?://[^\s]+)'                    #http[s]://anything_until_whitespace
+            )
+            ftp_list = extract_links_proper(
+                r'(ftp://[^\s]+)'                       #ftp://anything_until_whitespace
+            )
+            email_ids = extract_links_proper(
+                r'((?:mailto: *)?[^\s]+@[^\s]+)',       #[mailto:[whitespaces]]anything_until_@ @ anything_until_whitespace
+            )
 
-            self.extracted_items_list = web_links + ftp_list + email_links                     # All links
+            self.extracted_items_list = web_links + ftp_list + email_ids                    # All links
             
             # Additional data
             self.additional_items_dict = {
                 '> Total Links:': len(self.extracted_items_list),
                 '    - Web links:': len(web_links),
                 '    - FTP links:': len(ftp_list),
-                '    - Email links:': len(email_links),
+                '    - Mail IDs:': len(email_ids),
                 '> Total words:': len(data_in_file.split(' ')),
                 '> Total lines:': len(data_in_file.split('\n'))
             }
@@ -114,22 +120,22 @@ class Extract_Links:
                 f'● Links extracted from "{self.original_file_name}"\n'
                 f'● {self.get_current_date_and_time()}\n\n'
             )
-
+            
+            # Conclusion
+            conclusion = '\n'.join(
+                [f'{key} {val}' for key, val in self.additional_items_dict.items()]
+            )
+            f_new.writelines(f'{conclusion}\n\n')
+            
             # Links
             for num, link in enumerate(self.extracted_items_list, start=1):
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
                 f_new.writelines(f'{num} - {link}\n')
 
-            # Conclusion
-            conclusion = '\n'.join(
-                [f'{key} {val}' for key, val in self.additional_items_dict.items()]
-            )
-            
-            f_new.writelines('\n')
-            f_new.writelines(f'{conclusion}\n')
             f_new.writelines("`" * 100)
             f_new.writelines('\n\n\n')
             
+            # Conclusion
             print(
                 f'{Fore.BLUE}{conclusion}\n'
                 f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
