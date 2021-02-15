@@ -67,7 +67,8 @@ class Extract_Links:
             # Links list
             list_of_all_links = re.findall(
                 r'(https?://[^\s]+)',
-                data_in_file
+                data_in_file,
+                re.IGNORECASE
             )                                   # List of all links present in the file
             self.extracted_links_list = []      # List for links after duplicate removal
             check_list = []                     # List for main links
