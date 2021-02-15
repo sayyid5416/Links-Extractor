@@ -2,7 +2,7 @@
 import os, sys, subprocess, re, threading
 from datetime import datetime
 
-app_version = '1.4'
+app_version = '1.5'
 github_link = 'https://github.com/hussain5416/extract_links'
 
 # Console properties
@@ -19,19 +19,37 @@ class Extract_Links:
         super().__init__()
         
         try:
-            # Original file name
-            self.original_file_name = input(
-                f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}'
-            ).replace(
-                '/',
-                '\\'
-            ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+            # User Choice
+            print(Fore.WHITE, end='')
+            print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
+            extraction_dict = {
+                '1': ('Web links', '(http/https)'),
+                '2': ('FTP links', '(ftp)'),
+                '3': ('MAIL links', '(mailto)'),
+                '4': ('All types of links', '')
+            }
+            for key, val in extraction_dict.items():
+                print('', key, '-', val[0], val[1])
             
-            # Extracted links file
-            file_name = self.original_file_name
-            if '\\' in file_name:
-                file_name = file_name.split('\\')[-1]                       # get only last name, if '\' in 'file_name'
-            self.file_to_save_extracted_links = f'Links - {file_name}.txt'
+            self.user_choice = input(f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}')
+            while not self.user_choice in extraction_dict.keys():
+                self.user_choice = input(f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}')
+            print()
+                
+            if self.user_choice in ['1', '2', '3', '4']:
+                # Get the file name
+                self.original_file_name = input(
+                    f'{Fore.WHITE}> Enter file name to extract links from it (relative/absolute path): {Fore.LIGHTBLUE_EX}'
+                ).replace(
+                    '/',
+                    '\\'
+                ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+                
+                # Extracted links file name
+                file_name = self.original_file_name
+                if '\\' in file_name:
+                    file_name = file_name.split('\\')[-1]        # get only last name, if '\' in 'file_name'
+                self.file_to_save_extracted_links = f'{extraction_dict[self.user_choice][0]} - {file_name}.txt'
             
             # Main function
             self.main_extracting_fctn()
@@ -42,7 +60,7 @@ class Extract_Links:
 
     def main_extracting_fctn(self):
         try:
-            self.get_data_from_file()       # Read from file
+            self.get_data_from_file(self.user_choice)       # Read from file
             self.write_data_to_file()       # Write to file
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
@@ -53,7 +71,7 @@ class Extract_Links:
             )
 
 
-    def get_data_from_file(self):
+    def get_data_from_file(self, arg):
         """
         Function to get data from file
         """
@@ -87,17 +105,42 @@ class Extract_Links:
                 r'(mailto: *[^(\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
             )
 
-            self.extracted_items_list = web_links + ftp_list + mail_links                    # All links
+            # User choice :: Links & Additional data
+            self.additional_items_dict = {}
+
+            if arg == '1':
+                self.extracted_items_list = web_links
+                self.additional_items_dict.update({
+                    '◆ Web links:': len(web_links)
+                })
+                
+            elif arg == '2':
+                self.extracted_items_list = ftp_list
+                self.additional_items_dict.update({
+                    '◆ FTP links:': len(ftp_list)
+                })
+                
+            elif arg == '3':
+                self.extracted_items_list = mail_links
+                self.additional_items_dict.update({
+                    '◆ Mail links:': len(mail_links)
+                })
+                
+            elif arg == '4':
+                self.extracted_items_list = web_links + ftp_list + mail_links
+                self.additional_items_dict.update({
+                    '◆ Links:': len(self.extracted_items_list),
+                    '        • Web links:': len(web_links),
+                    '        • FTP links:': len(ftp_list),
+                    '        • Mail links:': len(mail_links)
+                })
             
-            # Additional data
-            self.additional_items_dict = {
-                '◆ Total Links:': len(self.extracted_items_list),
-                '        • Web links:': len(web_links),
-                '        • FTP links:': len(ftp_list),
-                '        • Mail links:': len(mail_links),
-                '◆ Total words:': len(data_in_file.split(' ')),
-                '◆ Total lines:': len(data_in_file.split('\n'))
-            }
+            self.additional_items_dict.update(
+                {
+                    '◆ Words:': len(data_in_file.split(' ')),
+                    '◆ Lines:': len(data_in_file.split('\n'))
+                }
+            )
             
         
         # Getting data (try & except block: To solve encoding issues)
