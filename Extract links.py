@@ -78,23 +78,23 @@ class Extract_Links:
                 return extracted_list
             
             web_links = extract_links_proper(
-                r'(https?://[^\s]+)'                    #http[s]://anything_until_whitespace
+                r'(https?://[^(\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
             )
             ftp_list = extract_links_proper(
-                r'(ftp://[^\s]+)'                       #ftp://anything_until_whitespace
+                r'(ftp://[^(\s<>)]+)'                       # ftp://anything_until (' ', <, >)
             )
-            email_ids = extract_links_proper(
-                r'((?:mailto: *)?[^\s]+@[^\s]+)',       #[mailto:[whitespaces]]anything_until_@ @ anything_until_whitespace
+            mail_links = extract_links_proper(
+                r'(mailto: *[^(\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
             )
 
-            self.extracted_items_list = web_links + ftp_list + email_ids                    # All links
+            self.extracted_items_list = web_links + ftp_list + mail_links                    # All links
             
             # Additional data
             self.additional_items_dict = {
                 '◆ Total Links:': len(self.extracted_items_list),
                 '        • Web links:': len(web_links),
                 '        • FTP links:': len(ftp_list),
-                '        • Mail IDs:': len(email_ids),
+                '        • Mail links:': len(mail_links),
                 '◆ Total words:': len(data_in_file.split(' ')),
                 '◆ Total lines:': len(data_in_file.split('\n'))
             }
@@ -117,7 +117,7 @@ class Extract_Links:
         with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
             
             # Heading
-            f_new.writelines("•" * 63)
+            f_new.writelines("•" * 84)
             f_new.writelines(
                 f'\n● Links extracted from "{self.original_file_name}"\n'
                 f'● {General_Class.get_current_date_and_time()}\n\n'
@@ -134,7 +134,7 @@ class Extract_Links:
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
                 f_new.writelines(f'    {num} - {link}\n')
 
-            f_new.writelines("‾" * 75)
+            f_new.writelines("‾" * 100)
             f_new.writelines('\n\n\n')
             
             # Conclusion
