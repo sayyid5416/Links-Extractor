@@ -2,7 +2,7 @@
 import os, sys, subprocess, re, threading
 from datetime import datetime
 
-app_version = '1.3'
+app_version = '1.4'
 github_link = 'https://github.com/hussain5416/extract_links'
 
 # Console properties
@@ -19,29 +19,27 @@ class Extract_Links:
         super().__init__()
         
         try:
-            # Original file
-            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}').replace(
+            # Original file name
+            self.original_file_name = input(
+                f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}'
+            ).replace(
                 '/',
                 '\\'
             ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
-
-            # File to save
+            
+            # Extracted links file
             file_name = self.original_file_name
             if '\\' in file_name:
-                file_name = file_name.split('\\')[-1]
+                file_name = file_name.split('\\')[-1]                       # get only last name, if '\' in 'file_name'
             self.file_to_save_extracted_links = f'Links - {file_name}.txt'
             
-            # Init: Additional Data
-            self.total_lines_num = self.total_words_num = self.total_links_num =  0
-            
-            # MAIN
+            # Main function
             self.main_extracting_fctn()
             
         except:
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
 
-    # Main Function
     def main_extracting_fctn(self):
         try:
             self.get_data_from_file()       # Read from file
@@ -57,36 +55,38 @@ class Extract_Links:
 
     def get_data_from_file(self):
         """
-        Function to read data from file
+        Function to get data from file
         """
         
         # PROPER Function
-        def  fctn(self, a):
-            data_in_file = a
+        def  fctn(self, data_in_file):
             
-            # Links list
-            list_of_all_links = re.findall(
-                r'(https?://[^\s]+)',
-                data_in_file,
-                re.IGNORECASE
-            )                                   # List of all links present in the file
-            self.extracted_links_list = []      # List for links after duplicate removal
-            check_list = []                     # List for main links
+            # Links list ::    http[s]://anything_until_a_whitespace
+            http_https_list = self.non_duplicated_list(
+                re.findall(
+                    r'(https?://[\S]+)',
+                    data_in_file,
+                    re.IGNORECASE
+                )
+            )
+
+            self.total_extracted_items_list = http_https_list
             
-            # Duplicate removal
-            for link in list_of_all_links:
-                main_link = str(link).removeprefix(str(link).split('://')[0])   # Link w/o 'http' like things
-                if main_link not in check_list:
-                    check_list.append(main_link)
-                    self.extracted_links_list.append(link)      # Addding item to main list :: if its main_link was not added
-                        
             # Additional data
-            self.total_links_num = len(self.extracted_links_list)        # Total links
-            self.total_words_num = len(data_in_file.split(' '))          # Total words
-            self.total_lines_num = len(data_in_file.split('\n'))         # Total lines
+            total_links_num = len(self.total_extracted_items_list)         # Total links
+            total_words_num = len(data_in_file.split(' '))                 # Total words
+            total_lines_num = len(data_in_file.split('\n'))                # Total lines
+            if total_words_num == 0:
+                total_links_num = total_lines_num = 0
+            
+            self.additional_items_dict = {
+                '> Links found:': total_links_num,
+                '> Total words:': total_words_num,
+                '> Total lines:': total_lines_num
+            }
+            
         
-        
-        # Getting data
+        # Getting data (try & except block: To solve encoding issues)
         try:
             with open(self.original_file_name, encoding='utf-8') as orig_file:
                 fctn(self, orig_file.read())
@@ -97,8 +97,9 @@ class Extract_Links:
 
     def write_data_to_file(self):
         """
-        Function to write data to file
+        Function to write data to a new file
         """
+        
         with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
             # Heading
             f_new.writelines(
@@ -107,20 +108,19 @@ class Extract_Links:
             )
 
             # Links
-            for num, link in enumerate(self.extracted_links_list, start=1):
+            for num, link in enumerate(self.total_extracted_items_list, start=1):
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
                 f_new.writelines(f'{num} - {link}\n')
 
             # Conclusion
-            conclusion = (
-                f'> Links found: {self.total_links_num}\n'
-                f'> Total words: {self.total_words_num}\n'
-                f'> Total lines: {self.total_lines_num}'
+            conclusion = '\n'.join(
+                [f'{key} {val}' for key, val in self.additional_items_dict.items()]
             )
-
+            
             f_new.writelines(f'{conclusion}\n')
-            f_new.writelines("````````````````````````````````````````````````````````````````````````````````````````````````````\n\n\n")
-
+            f_new.writelines("`" * 100)
+            f_new.writelines('\n\n\n')
+            
             print(
                 f'{Fore.BLUE}{conclusion}\n'
                 f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
@@ -166,6 +166,18 @@ class Extract_Links:
         )
         file_thread.setDaemon(True)
         file_thread.start()
+    
+    
+    @staticmethod
+    def non_duplicated_list(original_list):
+        """
+        This function returns a list after removing all the duplicates
+        """
+
+        new_list = []
+        [new_list.append(item) for item in original_list if item not in new_list]
+        
+        return new_list
     
     
 
