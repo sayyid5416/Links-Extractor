@@ -2,12 +2,13 @@
 import os, sys, subprocess, re, threading
 from datetime import datetime
 
-app_version = '1.3'
+app_version = '1.4'
+github_link = 'https://github.com/hussain5416/extract_links'
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
-    os.system(f'title Extract links from a file [v{app_version}]')
+    os.system(f'title Extract links from a file [v{app_version}] -- {github_link}')
 
 
 
@@ -18,29 +19,27 @@ class Extract_Links:
         super().__init__()
         
         try:
-            # Original file
-            self.original_file_name = input(f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}').replace(
+            # Original file name
+            self.original_file_name = input(
+                f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}'
+            ).replace(
                 '/',
                 '\\'
             ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
-
-            # File to save
+            
+            # Extracted links file
             file_name = self.original_file_name
             if '\\' in file_name:
-                file_name = file_name.split('\\')[-1]
+                file_name = file_name.split('\\')[-1]                       # get only last name, if '\' in 'file_name'
             self.file_to_save_extracted_links = f'Links - {file_name}.txt'
             
-            # Init: Additional Data
-            self.total_lines_num = self.total_words_num = self.total_links_num =  0
-            
-            # MAIN
+            # Main function
             self.main_extracting_fctn()
             
         except:
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
 
-    # Main Function
     def main_extracting_fctn(self):
         try:
             self.get_data_from_file()       # Read from file
@@ -49,42 +48,59 @@ class Extract_Links:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
             # Open saved extracted links file
-            self.open_file(
+            General_Class.open_file(
                 file_to_open=self.file_to_save_extracted_links
             )
 
 
     def get_data_from_file(self):
         """
-        Function to read data from file
+        Function to get data from file
         """
         
         # PROPER Function
-        def  fctn(self, a):
-            data_in_file = a
+        def  fctn(self, data_in_file):
             
-            # Links list
-            list_of_all_links = re.findall(
-                r'(https?://[^\s]+)',
-                data_in_file
-            )                                   # List of all links present in the file
-            self.extracted_links_list = []      # List for links after duplicate removal
-            check_list = []                     # List for main links
+            # Extracting links from file
+            def extract_links_proper(regex_string:str):
+                """
+                This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
+                """
+                
+                extracted_list = General_Class.non_duplicated_list(
+                    re.findall(
+                        regex_string,
+                        data_in_file,
+                        re.IGNORECASE
+                    )
+                )
+
+                return extracted_list
             
-            # Duplicate removal
-            for link in list_of_all_links:
-                main_link = str(link).removeprefix(str(link).split('://')[0])   # Link w/o 'http' like things
-                if main_link not in check_list:
-                    check_list.append(main_link)
-                    self.extracted_links_list.append(link)      # Addding item to main list :: if its main_link was not added
-                        
+            web_links = extract_links_proper(
+                r'(https?://[^(\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
+            )
+            ftp_list = extract_links_proper(
+                r'(ftp://[^(\s<>)]+)'                       # ftp://anything_until (' ', <, >)
+            )
+            mail_links = extract_links_proper(
+                r'(mailto: *[^(\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
+            )
+
+            self.extracted_items_list = web_links + ftp_list + mail_links                    # All links
+            
             # Additional data
-            self.total_links_num = len(self.extracted_links_list)        # Total links
-            self.total_words_num = len(data_in_file.split(' '))          # Total words
-            self.total_lines_num = len(data_in_file.split('\n'))         # Total lines
+            self.additional_items_dict = {
+                '◆ Total Links:': len(self.extracted_items_list),
+                '        • Web links:': len(web_links),
+                '        • FTP links:': len(ftp_list),
+                '        • Mail links:': len(mail_links),
+                '◆ Total words:': len(data_in_file.split(' ')),
+                '◆ Total lines:': len(data_in_file.split('\n'))
+            }
+            
         
-        
-        # Getting data
+        # Getting data (try & except block: To solve encoding issues)
         try:
             with open(self.original_file_name, encoding='utf-8') as orig_file:
                 fctn(self, orig_file.read())
@@ -95,36 +111,68 @@ class Extract_Links:
 
     def write_data_to_file(self):
         """
-        Function to write data to file
+        Function to write data to a new file
         """
+        
         with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
+            
             # Heading
+            f_new.writelines("•" * 84)
             f_new.writelines(
-                f'● Links extracted from "{self.original_file_name}"\n'
-                f'● {self.get_current_date_and_time()}\n\n'
+                f'\n● Links extracted from "{self.original_file_name}"\n'
+                f'● {General_Class.get_current_date_and_time()}\n\n'
             )
-
-            # Links
-            for num, link in enumerate(self.extracted_links_list, start=1):
-                print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
-                f_new.writelines(f'{num} - {link}\n')
-
+            
             # Conclusion
-            conclusion = (
-                f'> Links found: {self.total_links_num}\n'
-                f'> Total words: {self.total_words_num}\n'
-                f'> Total lines: {self.total_lines_num}'
+            conclusion = '\n'.join(
+                [f'{key} {val}' for key, val in self.additional_items_dict.items()]
             )
+            f_new.writelines(f'{conclusion}\n\n')
+            
+            # Links
+            for num, link in enumerate(self.extracted_items_list, start=1):
+                print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
+                f_new.writelines(f'    {num} - {link}\n')
 
-            f_new.writelines(f'{conclusion}\n')
-            f_new.writelines("````````````````````````````````````````````````````````````````````````````````````````````````````\n\n\n")
-
+            f_new.writelines("‾" * 100)
+            f_new.writelines('\n\n\n')
+            
+            # Conclusion
             print(
                 f'{Fore.BLUE}{conclusion}\n'
                 f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
             )
 
 
+
+# General class
+class General_Class:
+    """
+    This class contains general methods
+    """        
+
+    @staticmethod
+    def import_modules(list_of_modules):
+        """
+        This function install the modules
+
+        Args:
+            list_of_modules (list): These modules will be installed, if not present
+        """
+        
+        # Start
+        print('=> Modules installation started <=\n')
+        
+        # Installing modules
+        for module in list_of_modules:
+            subprocess.run(
+                f'pip install {module}'
+            )
+        
+        # Success
+        print('\n=> All modules installed successfully <=')
+
+    
     @staticmethod
     def get_current_date_and_time():
         """
@@ -166,38 +214,16 @@ class Extract_Links:
         file_thread.start()
     
     
-
-# General class
-class General_Class:
-    
-    def __init__(self) -> None:
-        """
-        This class contains general methods
-        """        
-        pass
-
-    
     @staticmethod
-    def import_modules(list_of_modules):
+    def non_duplicated_list(original_list):
         """
-        This function install the modules
-
-        Args:
-            list_of_modules (list): These modules will be installed, if not present
+        This function returns a list after removing all the duplicates
         """
-        
-        # Start
-        print('=> Modules installation started <=\n')
-        
-        # Installing modules
-        for module in list_of_modules:
-            subprocess.run(
-                f'pip install {module}'
-            )
-        
-        # Success
-        print('\n=> All modules installed successfully <=')
 
+        new_list = []
+        [new_list.append(item) for item in original_list if item not in new_list]
+        
+        return new_list
 
 
 ################################################################### Third party modules
