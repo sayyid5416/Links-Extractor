@@ -61,30 +61,33 @@ class Extract_Links:
         # PROPER Function
         def  fctn(self, data_in_file):
             
-            # Links list ::    http[s]://anything_until_a_whitespace
-            http_https_list = self.non_duplicated_list(
-                re.findall(
-                    r'(https?://[\S]+)',
-                    data_in_file,
-                    re.IGNORECASE
+            # Extracting links from file
+            def extract_links_proper(self, regex_string:str):
+                """
+                This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
+                """
+                
+                extracted_list = self.non_duplicated_list(
+                    re.findall(
+                        regex_string,
+                        data_in_file,
+                        re.IGNORECASE
+                    )
                 )
-            )
-            
-            # Email links ::    mailto:[whitespaces]anything_until_a_whitespace
-            email_links = self.non_duplicated_list(
-                re.findall(
-                    r'(mailto: *[\S]+)',
-                    data_in_file,
-                    re.IGNORECASE
-                )
-            )
 
-            self.extracted_items_list = http_https_list + email_links     # All links
+                return extracted_list
+            
+            web_links = extract_links_proper(self, r'(https?://[\S]+)')             # Web-links
+            ftp_list = extract_links_proper(self, r'(ftp://[\S]+)')                 # FTP-links
+            email_links = extract_links_proper(self, r'(mailto: *[\S]+)')           # Email-links
+
+            self.extracted_items_list = web_links + ftp_list + email_links                     # All links
             
             # Additional data
             self.additional_items_dict = {
                 '> Total Links:': len(self.extracted_items_list),
-                '    - Webpages:': len(http_https_list),
+                '    - Web links:': len(web_links),
+                '    - FTP links:': len(ftp_list),
                 '    - Email links:': len(email_links),
                 '> Total words:': len(data_in_file.split(' ')),
                 '> Total lines:': len(data_in_file.split('\n'))
