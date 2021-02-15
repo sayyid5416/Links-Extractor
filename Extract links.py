@@ -48,7 +48,7 @@ class Extract_Links:
             print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
         else:
             # Open saved extracted links file
-            self.open_file(
+            General_Class.open_file(
                 file_to_open=self.file_to_save_extracted_links
             )
 
@@ -62,12 +62,12 @@ class Extract_Links:
         def  fctn(self, data_in_file):
             
             # Extracting links from file
-            def extract_links_proper(regex_string:str, self=self):
+            def extract_links_proper(regex_string:str):
                 """
                 This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
                 """
                 
-                extracted_list = self.non_duplicated_list(
+                extracted_list = General_Class.non_duplicated_list(
                     re.findall(
                         regex_string,
                         data_in_file,
@@ -91,12 +91,12 @@ class Extract_Links:
             
             # Additional data
             self.additional_items_dict = {
-                '> Total Links:': len(self.extracted_items_list),
-                '    - Web links:': len(web_links),
-                '    - FTP links:': len(ftp_list),
-                '    - Mail IDs:': len(email_ids),
-                '> Total words:': len(data_in_file.split(' ')),
-                '> Total lines:': len(data_in_file.split('\n'))
+                '◆ Total Links:': len(self.extracted_items_list),
+                '        • Web links:': len(web_links),
+                '        • FTP links:': len(ftp_list),
+                '        • Mail IDs:': len(email_ids),
+                '◆ Total words:': len(data_in_file.split(' ')),
+                '◆ Total lines:': len(data_in_file.split('\n'))
             }
             
         
@@ -115,10 +115,12 @@ class Extract_Links:
         """
         
         with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
+            
             # Heading
+            f_new.writelines("•" * 63)
             f_new.writelines(
-                f'● Links extracted from "{self.original_file_name}"\n'
-                f'● {self.get_current_date_and_time()}\n\n'
+                f'\n● Links extracted from "{self.original_file_name}"\n'
+                f'● {General_Class.get_current_date_and_time()}\n\n'
             )
             
             # Conclusion
@@ -130,9 +132,9 @@ class Extract_Links:
             # Links
             for num, link in enumerate(self.extracted_items_list, start=1):
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
-                f_new.writelines(f'{num} - {link}\n')
+                f_new.writelines(f'    {num} - {link}\n')
 
-            f_new.writelines("`" * 100)
+            f_new.writelines("‾" * 75)
             f_new.writelines('\n\n\n')
             
             # Conclusion
@@ -142,6 +144,35 @@ class Extract_Links:
             )
 
 
+
+# General class
+class General_Class:
+    """
+    This class contains general methods
+    """        
+
+    @staticmethod
+    def import_modules(list_of_modules):
+        """
+        This function install the modules
+
+        Args:
+            list_of_modules (list): These modules will be installed, if not present
+        """
+        
+        # Start
+        print('=> Modules installation started <=\n')
+        
+        # Installing modules
+        for module in list_of_modules:
+            subprocess.run(
+                f'pip install {module}'
+            )
+        
+        # Success
+        print('\n=> All modules installed successfully <=')
+
+    
     @staticmethod
     def get_current_date_and_time():
         """
@@ -193,40 +224,6 @@ class Extract_Links:
         [new_list.append(item) for item in original_list if item not in new_list]
         
         return new_list
-    
-    
-
-# General class
-class General_Class:
-    
-    def __init__(self) -> None:
-        """
-        This class contains general methods
-        """        
-        pass
-
-    
-    @staticmethod
-    def import_modules(list_of_modules):
-        """
-        This function install the modules
-
-        Args:
-            list_of_modules (list): These modules will be installed, if not present
-        """
-        
-        # Start
-        print('=> Modules installation started <=\n')
-        
-        # Installing modules
-        for module in list_of_modules:
-            subprocess.run(
-                f'pip install {module}'
-            )
-        
-        # Success
-        print('\n=> All modules installed successfully <=')
-
 
 
 ################################################################### Third party modules
