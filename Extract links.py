@@ -69,20 +69,25 @@ class Extract_Links:
                     re.IGNORECASE
                 )
             )
+            
+            # Email links ::    mailto:[whitespaces]anything_until_a_whitespace
+            email_links = self.non_duplicated_list(
+                re.findall(
+                    r'(mailto: *[\S]+)',
+                    data_in_file,
+                    re.IGNORECASE
+                )
+            )
 
-            self.total_extracted_items_list = http_https_list
+            self.extracted_items_list = http_https_list + email_links     # All links
             
             # Additional data
-            total_links_num = len(self.total_extracted_items_list)         # Total links
-            total_words_num = len(data_in_file.split(' '))                 # Total words
-            total_lines_num = len(data_in_file.split('\n'))                # Total lines
-            if total_words_num == 0:
-                total_links_num = total_lines_num = 0
-            
             self.additional_items_dict = {
-                '> Links found:': total_links_num,
-                '> Total words:': total_words_num,
-                '> Total lines:': total_lines_num
+                '> Total Links:': len(self.extracted_items_list),
+                '    - Webpages:': len(http_https_list),
+                '    - Email links:': len(email_links),
+                '> Total words:': len(data_in_file.split(' ')),
+                '> Total lines:': len(data_in_file.split('\n'))
             }
             
         
@@ -108,7 +113,7 @@ class Extract_Links:
             )
 
             # Links
-            for num, link in enumerate(self.total_extracted_items_list, start=1):
+            for num, link in enumerate(self.extracted_items_list, start=1):
                 print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
                 f_new.writelines(f'{num} - {link}\n')
 
@@ -117,6 +122,7 @@ class Extract_Links:
                 [f'{key} {val}' for key, val in self.additional_items_dict.items()]
             )
             
+            f_new.writelines('\n')
             f_new.writelines(f'{conclusion}\n')
             f_new.writelines("`" * 100)
             f_new.writelines('\n\n\n')
