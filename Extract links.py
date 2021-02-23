@@ -33,11 +33,16 @@ class Extract_Links:
             for key, val in extraction_dict.items():
                 print('', key, '-', val[0], val[1])
             
-            self.user_choice = input(f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}')
+            self.user_choice = input(
+                f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}'
+            )
             while not self.user_choice in extraction_dict.keys():
-                self.user_choice = input(f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}')
+                self.user_choice = input(
+                    f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}'
+                )
             print()
-                
+            
+            # Files name
             if self.user_choice in ['1', '2', '3', '4']:
                 # Get the file name
                 self.original_file_name = input(
@@ -73,7 +78,7 @@ class Extract_Links:
             )
 
 
-    def get_data_from_file(self, arg):
+    def get_data_from_file(self, usr_choice):
         """
         Function to get data from file
         """
@@ -108,35 +113,46 @@ class Extract_Links:
             )
 
             # User choice :: Links & Additional data
-            self.additional_items_dict = {}
-
-            if arg == '1':
-                self.extracted_items_list = web_links
-                self.additional_items_dict.update({
-                    '◆ Web links:': len(web_links)
-                })
+            user_choice_dict = {
+                '1': (
+                    '◆ Web links:',
+                    web_links
+                ),
                 
-            elif arg == '2':
-                self.extracted_items_list = ftp_list
-                self.additional_items_dict.update({
-                    '◆ FTP links:': len(ftp_list)
-                })
+                '2': (
+                    '◆ FTP links:',
+                    ftp_list
+                ),
                 
-            elif arg == '3':
-                self.extracted_items_list = mail_links
-                self.additional_items_dict.update({
-                    '◆ Mail links:': len(mail_links)
-                })
+                '3': (
+                    '◆ Mail links:',
+                    mail_links
+                ),
                 
-            elif arg == '4':
-                self.extracted_items_list = web_links + ftp_list + mail_links
-                self.additional_items_dict.update({
-                    '◆ Links:': len(self.extracted_items_list),
-                    '        • Web links:': len(web_links),
-                    '        • FTP links:': len(ftp_list),
-                    '        • Mail links:': len(mail_links)
-                })
+                '4': (
+                    '◆ All Links:',
+                    web_links + ftp_list + mail_links
+                ),
+            }
             
+            # Links to extract
+            self.extracted_items_list = user_choice_dict[usr_choice][1]
+            
+            # Additional data
+            self.additional_items_dict = {}
+            self.additional_items_dict.update(
+                {
+                    user_choice_dict[usr_choice][0]: len(user_choice_dict[usr_choice][1])
+                }
+            )
+            if usr_choice == '4':
+                self.additional_items_dict.update(
+                    {
+                        '        • Web links:': len(web_links),
+                        '        • FTP links:': len(ftp_list),
+                        '        • Mail links:': len(mail_links)
+                    }
+                )
             self.additional_items_dict.update(
                 {
                     '◆ Words:': len(data_in_file.split(' ')),
