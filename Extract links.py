@@ -20,7 +20,7 @@ class Extract_Links:
         super().__init__()
         self.webcrawl = False
         
-        try:
+        try:        # improve the source code
             # User Choice
             print(Fore.WHITE, end='')
             print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
@@ -95,6 +95,7 @@ class Extract_Links:
             )
             
         except:
+            # Catch any unexpected errors (instead of crashing)
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
 
@@ -105,9 +106,9 @@ class Extract_Links:
                 usr_choice
             )                                           # Read from file
             
-            orig_file_name = orig_file_location
+            orig_file_name = orig_file_location         # this will show in the extracted file
             if self.webcrawl:
-                orig_file_name = self.webpage
+                orig_file_name = self.webpage           # Change to webpage link instead of file name (where source code is saved)
                 
             self.write_data_to_file(
                 orig_file_name, 
@@ -151,13 +152,13 @@ class Extract_Links:
                 return extracted_list
             
             web_links = extract_links_proper(
-                r'(https?://[^(\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
+                r'(https?://[^("\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
             )
             ftp_list = extract_links_proper(
-                r'(ftp://[^(\s<>)]+)'                       # ftp://anything_until (' ', <, >)
+                r'(ftp://[^("\s<>)]+)'                       # ftp://anything_until (' ', <, >)
             )
             mail_links = extract_links_proper(
-                r'(mailto: *[^(\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
+                r'(mailto: *[^("\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
             )
 
             # User choice :: Links & Additional data
