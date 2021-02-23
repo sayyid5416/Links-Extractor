@@ -1,5 +1,5 @@
 # Imports
-import os, sys, subprocess, re, threading
+import os, sys, subprocess, re, threading, requests
 from datetime import datetime
 from colorama.ansi import Style
 
@@ -18,6 +18,7 @@ class Extract_Links:
 
     def __init__(self):
         super().__init__()
+        self.webcrawl = False
         
         try:
             # User Choice
@@ -28,6 +29,7 @@ class Extract_Links:
                 '2': ('FTP links', '(ftp)'),
                 '3': ('MAIL links', '(mailto)'),
                 '4': ('All types of links', ''),
+                '5': ('Web-Crawl', '')
             }
             for key, val in choices_dict.items():
                 print('', key, '-', val[0], val[1])
@@ -57,6 +59,34 @@ class Extract_Links:
                     file_name = file_name.split('\\')[-1]        # get only last name, if '\' in 'file_name'
                 self.new_file_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
             
+            # Web Crawling
+            elif self.user_choice == '5':
+                # webpage
+                self.webcrawl = True
+                self.webpage = input(
+                    f'{Fore.WHITE}> Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416): {Fore.LIGHTBLUE_EX}'
+                ).replace(
+                    '\\',
+                    '/'
+                ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+                
+                # Extracted links file name
+                text = self.webpage
+                for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
+                    text = text.replace(i, '-')
+                self.new_file_name = f'{choices_dict[self.user_choice][0]} - {text}.txt'
+                
+                # Getting source code of webpage
+                source_code = requests.get(self.webpage).text
+                with open('TEMP_FILE', 'w') as temp_file:           #todo Move this temp file os temporary directory
+                    for i in source_code:
+                        try:
+                            temp_file.write(i)
+                        except UnicodeError:
+                            pass
+                self.old_file_name = 'TEMP_FILE'
+                self.user_choice = '4'
+                
             # Main function
             self.main_extracting_fctn(
                 self.user_choice,
@@ -74,8 +104,13 @@ class Extract_Links:
                 orig_file_location, 
                 usr_choice
             )                                           # Read from file
+            
+            orig_file_name = orig_file_location
+            if self.webcrawl:
+                orig_file_name = self.webpage
+                
             self.write_data_to_file(
-                orig_file_location, 
+                orig_file_name, 
                 extracted_file_location
             )                                           # Write to file
             
@@ -183,7 +218,7 @@ class Extract_Links:
                 fctn(self, f.read())
 
 
-    def write_data_to_file(self, orig_file_location, extracted_file_location):
+    def write_data_to_file(self, orig_file_name, extracted_file_location):
         """
         Function to write data to a new file
         """
@@ -193,7 +228,7 @@ class Extract_Links:
             # Heading
             f_new.writelines("•" * 84)
             f_new.writelines(
-                f'\n● Links extracted from "{orig_file_location}"\n'
+                f'\n● Links extracted from "{orig_file_name}"\n'
                 f'● {General_Class.get_current_date_and_time()}\n\n'
             )
             
