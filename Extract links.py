@@ -1,7 +1,6 @@
 # Imports
 import os, sys, subprocess, re, threading
 from datetime import datetime
-
 from colorama.ansi import Style
 
 app_version = '1.5'
@@ -24,28 +23,28 @@ class Extract_Links:
             # User Choice
             print(Fore.WHITE, end='')
             print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
-            extraction_dict = {
+            choices_dict = {
                 '1': ('Web links', '(http/https)'),
                 '2': ('FTP links', '(ftp)'),
                 '3': ('MAIL links', '(mailto)'),
-                '4': ('All types of links', '')
+                '4': ('All types of links', ''),
             }
-            for key, val in extraction_dict.items():
+            for key, val in choices_dict.items():
                 print('', key, '-', val[0], val[1])
             
             self.user_choice = input(
-                f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}'
+                f'{Fore.WHITE}> Enter your choice ({"/".join(choices_dict.keys())}) {Fore.LIGHTBLUE_EX}'
             )
-            while not self.user_choice in extraction_dict.keys():
+            while not self.user_choice in choices_dict.keys():
                 self.user_choice = input(
-                    f'{Fore.WHITE}> Enter your choice ({"/".join(extraction_dict.keys())}) {Fore.LIGHTBLUE_EX}'
+                    f'{Fore.WHITE}> Enter your choice ({"/".join(choices_dict.keys())}) {Fore.LIGHTBLUE_EX}'
                 )
             print()
             
             # Files name
             if self.user_choice in ['1', '2', '3', '4']:
                 # Get the file name
-                self.original_file_name = input(
+                self.old_file_name = input(
                     f'{Fore.WHITE}> Enter file name to extract links from it (relative/absolute path): {Fore.LIGHTBLUE_EX}'
                 ).replace(
                     '/',
@@ -53,32 +52,46 @@ class Extract_Links:
                 ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
                 
                 # Extracted links file name
-                file_name = self.original_file_name
+                file_name = self.old_file_name
                 if '\\' in file_name:
                     file_name = file_name.split('\\')[-1]        # get only last name, if '\' in 'file_name'
-                self.file_to_save_extracted_links = f'{extraction_dict[self.user_choice][0]} - {file_name}.txt'
+                self.new_file_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
             
             # Main function
-            self.main_extracting_fctn()
+            self.main_extracting_fctn(
+                self.user_choice,
+                self.old_file_name,
+                self.new_file_name
+            )
             
         except:
             print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
         
 
-    def main_extracting_fctn(self):
+    def main_extracting_fctn(self, usr_choice, orig_file_location, extracted_file_location):
         try:
-            self.get_data_from_file(self.user_choice)       # Read from file
-            self.write_data_to_file()       # Write to file
+            self.get_data_from_file(
+                orig_file_location, 
+                usr_choice
+            )                                           # Read from file
+            self.write_data_to_file(
+                orig_file_location, 
+                extracted_file_location
+            )                                           # Write to file
+            
         except FileNotFoundError:
-            print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
+            print(
+                f'{Fore.RED}=> [Error] "{orig_file_location}" not found. Write the proper file name...'
+            )
+            
         else:
             # Open saved extracted links file
             General_Class.open_file(
-                file_to_open=self.file_to_save_extracted_links
+                file_to_open=extracted_file_location
             )
 
 
-    def get_data_from_file(self, usr_choice):
+    def get_data_from_file(self, orig_file_location, usr_choice):
         """
         Function to get data from file
         """
@@ -163,24 +176,24 @@ class Extract_Links:
         
         # Getting data (try & except block: To solve encoding issues)
         try:
-            with open(self.original_file_name, encoding='utf-8') as orig_file:
-                fctn(self, orig_file.read())
+            with open(orig_file_location, encoding='utf-8') as f:
+                fctn(self, f.read())
         except:
-            with open(self.original_file_name) as orig_file:
-                fctn(self, orig_file.read())
+            with open(orig_file_location) as f:
+                fctn(self, f.read())
 
 
-    def write_data_to_file(self):
+    def write_data_to_file(self, orig_file_location, extracted_file_location):
         """
         Function to write data to a new file
         """
         
-        with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
+        with open(extracted_file_location, 'a+', encoding='utf-8') as f_new:
             
             # Heading
             f_new.writelines("•" * 84)
             f_new.writelines(
-                f'\n● Links extracted from "{self.original_file_name}"\n'
+                f'\n● Links extracted from "{orig_file_location}"\n'
                 f'● {General_Class.get_current_date_and_time()}\n\n'
             )
             
@@ -201,7 +214,7 @@ class Extract_Links:
             # Conclusion
             print(
                 f'{Fore.BLUE}{conclusion}\n'
-                f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
+                f'{Fore.YELLOW}=> Data saved to "{extracted_file_location}"'
             )
 
 
