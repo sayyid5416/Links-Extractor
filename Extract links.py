@@ -44,26 +44,8 @@ class Extract_Links:
         self.webcrawl = False
         
         try:
-            # Print user choices
-            print(Fore.WHITE, end='')
-            print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
-            choices_dict = {
-                '1': ('Web links', '(http/https)'),
-                '2': ('FTP links', '(ftp)'),
-                '3': ('MAIL links', '(mailto)'),
-                '4': ('All types of links', ''),
-                '5': ('Web-Crawl', '(all links)')
-            }
-            for key, val in choices_dict.items():
-                print('', key, '-', val[0], val[1])
-            
-            # Asking for user choice
-            choice_question = f'Enter your choice ({"/".join(choices_dict.keys())})'
-            self.user_choice = take_user_input(choice_question)
-            while not self.user_choice in choices_dict.keys():
-                self.user_choice = take_user_input(choice_question)
-            print()
-            
+            # User choices
+            choices_dict, self.user_choice = self.asks_user_choice()
             
             # Local file Crawling
             ques = 'Enter file name to extract links from it (relative/absolute path)'
@@ -74,7 +56,6 @@ class Extract_Links:
                 ques = 'Enter WEB-Page address to extract links from it (Ex: https://github.com/hussain5416)'
                 rep_list = [('\\', '/')]
                 self.webcrawl = True
-                
                 
             # Old location user input
             self.source_location = take_user_input(
@@ -89,7 +70,6 @@ class Extract_Links:
                 file_name = file_name.replace(i, '-')
             self.new_file_location = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
                 
-                
             ## Main links extraction function
             self.main_extracting_fctn()
             
@@ -97,7 +77,37 @@ class Extract_Links:
             print(
                 f'{Fore.RED}=> [Error] Something went wrong. Try again...'
             )
+    
+    
+    def asks_user_choice(self):
+        """
+        This function shows user the choices and returns dict and the user choice
+        """        
         
+        # Choices dict
+        choice_dict = {
+            '1': ('Web links', '(http/https)'),
+            '2': ('FTP links', '(ftp)'),
+            '3': ('MAIL links', '(mailto)'),
+            '4': ('All types of links', ''),
+            '5': ('Web-Crawl', '(all links)')
+        }
+        
+        # Printing choices
+        print(Fore.WHITE, end='')
+        print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
+        for key, val in choice_dict.items():
+            print('', key, '-', val[0], val[1])
+        
+        # Asking for user choice
+        choice_question = f'Enter your choice ({"/".join(choice_dict.keys())})'
+        choice = take_user_input(choice_question)
+        while not choice in choice_dict.keys():
+            choice = take_user_input(choice_question)
+        print()
+        
+        return choice_dict, choice
+    
 
     def main_extracting_fctn(self):
         
