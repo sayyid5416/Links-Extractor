@@ -1,8 +1,9 @@
 # Imports
-import os, sys, subprocess, re, threading
+import os, sys, subprocess, re, threading, requests
 from datetime import datetime
+from colorama.ansi import Style
 
-app_version = '1.4'
+app_version = '1.5'
 github_link = 'https://github.com/hussain5416/extract_links'
 
 # Console properties
@@ -12,114 +13,227 @@ if __name__ == "__main__":
 
 
 
+def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[]):
+    """
+    This function asks user input and returns the modified text
+    """    
+    
+    x = input(
+        f'{Fore.WHITE}> {question_text}: {Fore.LIGHTBLUE_EX}'
+    )
+    
+    if remove_quotes:
+        x.removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+    
+    if replace_tuple_list != []:
+        for rep_tuple in replace_tuple_list:
+            x.replace(
+                rep_tuple[0],
+                rep_tuple[1]
+            )
+
+    return x
+
+
+
 # Main Extraction class
 class Extract_Links:
 
     def __init__(self):
         super().__init__()
+        self.webcrawl = False
         
         try:
-            # Original file name
-            self.original_file_name = input(
-                f'{Fore.WHITE}> Enter file name to extract links from it (Ex: file name.html): {Fore.LIGHTBLUE_EX}'
-            ).replace(
-                '/',
-                '\\'
-            ).removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+            # User choices
+            choices_dict, self.user_choice = self.asks_user_choice()
             
-            # Extracted links file
-            file_name = self.original_file_name
-            if '\\' in file_name:
-                file_name = file_name.split('\\')[-1]                       # get only last name, if '\' in 'file_name'
-            self.file_to_save_extracted_links = f'Links - {file_name}.txt'
+            # Local file Crawling
+            ques = 'Enter file name to extract links from it (relative/absolute path)'
+            rep_list = [('/', '\\')]
             
-            # Main function
+            # Web Crawling
+            if self.user_choice == '5':
+                ques = 'Enter WEB-Page address to extract links from it (Ex: https://github.com/hussain5416)'
+                rep_list = [('\\', '/')]
+                self.webcrawl = True
+                
+            # Old location user input
+            self.source_location = take_user_input(
+                question_text=ques,
+                remove_quotes=True,
+                replace_tuple_list=rep_list
+            )
+            
+            # File name for extracted links
+            file_name = self.source_location
+            for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
+                file_name = file_name.replace(i, '-')
+            self.new_file_location = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
+                
+            ## Main links extraction function
             self.main_extracting_fctn()
             
         except:
-            print(f'{Fore.RED}=> [Error] Something went wrong. Try again...')
+            print(
+                f'{Fore.RED}=> [Error] Something went wrong. Try again...'
+            )
+    
+    
+    def asks_user_choice(self):
+        """
+        This function shows user the choices and returns dict and the user choice
+        """        
         
+        # Choices dict
+        choice_dict = {
+            '1': ('Web links', '(http/https)'),
+            '2': ('FTP links', '(ftp)'),
+            '3': ('MAIL links', '(mailto)'),
+            '4': ('All types of links', ''),
+            '5': ('Web-Crawl', '(all links)')
+        }
+        
+        # Printing choices
+        print(Fore.WHITE, end='')
+        print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
+        for key, val in choice_dict.items():
+            print('', key, '-', val[0], val[1])
+        
+        # Asking for user choice
+        choice_question = f'Enter your choice ({"/".join(choice_dict.keys())})'
+        choice = take_user_input(choice_question)
+        while not choice in choice_dict.keys():
+            choice = take_user_input(choice_question)
+        print()
+        
+        return choice_dict, choice
+    
 
     def main_extracting_fctn(self):
-        try:
-            self.get_data_from_file()       # Read from file
-            self.write_data_to_file()       # Write to file
+        
+        try:    
+            ## Getting data from source location
+            if self.webcrawl:
+                self.data_to_parse = requests.get(
+                    self.source_location
+                ).text                                                              # Source code of webpage
+                self.user_choice = '4'                                                      # for extracting all links
+            else:                                                                   # Data from file
+                try:                                                                        # solve encoding issues
+                    with open(self.source_location, encoding='utf-8') as f:
+                        self.data_to_parse = f.read()
+                except:
+                    with open(self.source_location) as f:
+                        self.data_to_parse = f.read()
+                        
+            self.extract_links_from_string()                    # Extract links
+            self.write_data_to_file()                           # Write links to a file
+            
+            
         except FileNotFoundError:
-            print(f'{Fore.RED}=> [Error] "{self.original_file_name}" not found. Write the proper file name...')
+            print(
+                f'{Fore.RED}=> [Error] "{self.source_location}" not found. Write the proper file name...'
+            )
+            
+            
         else:
             # Open saved extracted links file
             General_Class.open_file(
-                file_to_open=self.file_to_save_extracted_links
+                file_to_open=self.new_file_location
             )
 
 
-    def get_data_from_file(self):
+    def extract_links_from_string(self):
         """
-        Function to get data from file
-        """
+        This function extracts links from source location based on user choice
+        """            
         
-        # PROPER Function
-        def  fctn(self, data_in_file):
+        # Extracting links from file
+        def extract_links_proper(regex_string:str):
+            """
+            This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
+            """
             
-            # Extracting links from file
-            def extract_links_proper(regex_string:str):
-                """
-                This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
-                """
-                
-                extracted_list = General_Class.non_duplicated_list(
-                    re.findall(
-                        regex_string,
-                        data_in_file,
-                        re.IGNORECASE
-                    )
+            extracted_list = General_Class.non_duplicated_list(
+                re.findall(
+                    regex_string,
+                    self.data_to_parse,
+                    re.IGNORECASE
                 )
-
-                return extracted_list
-            
-            web_links = extract_links_proper(
-                r'(https?://[^(\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
-            )
-            ftp_list = extract_links_proper(
-                r'(ftp://[^(\s<>)]+)'                       # ftp://anything_until (' ', <, >)
-            )
-            mail_links = extract_links_proper(
-                r'(mailto: *[^(\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
             )
 
-            self.extracted_items_list = web_links + ftp_list + mail_links                    # All links
-            
-            # Additional data
-            self.additional_items_dict = {
-                '◆ Total Links:': len(self.extracted_items_list),
-                '        • Web links:': len(web_links),
-                '        • FTP links:': len(ftp_list),
-                '        • Mail links:': len(mail_links),
-                '◆ Total words:': len(data_in_file.split(' ')),
-                '◆ Total lines:': len(data_in_file.split('\n'))
-            }
-            
+            return extracted_list
         
-        # Getting data (try & except block: To solve encoding issues)
-        try:
-            with open(self.original_file_name, encoding='utf-8') as orig_file:
-                fctn(self, orig_file.read())
-        except:
-            with open(self.original_file_name) as orig_file:
-                fctn(self, orig_file.read())
+        web_links = extract_links_proper(
+            r'(https?://[^("\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
+        )
+        ftp_list = extract_links_proper(
+            r'(ftp://[^("\s<>)]+)'                       # ftp://anything_until (' ', <, >)
+        )
+        mail_links = extract_links_proper(
+            r'(mailto: *[^("\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
+        )
+
+        # User choice :: Links & Additional data
+        user_choice_dict = {
+            '1': (
+                '◆ Web links:',
+                web_links
+            ),
+            
+            '2': (
+                '◆ FTP links:',
+                ftp_list
+            ),
+            
+            '3': (
+                '◆ Mail links:',
+                mail_links
+            ),
+            
+            '4': (
+                '◆ All Links:',
+                web_links + ftp_list + mail_links
+            ),
+        }
+        
+        # Links to extract
+        self.extracted_items_list = user_choice_dict[self.user_choice][1]
+        
+        # Additional data
+        self.additional_items_dict = {}
+        self.additional_items_dict.update(
+            {
+                user_choice_dict[self.user_choice][0]: len(user_choice_dict[self.user_choice][1])
+            }
+        )
+        if self.user_choice == '4':
+            self.additional_items_dict.update(
+                {
+                    '        • Web links:': len(web_links),
+                    '        • FTP links:': len(ftp_list),
+                    '        • Mail links:': len(mail_links)
+                }
+            )
+        self.additional_items_dict.update(
+            {
+                '◆ Words:': len(self.data_to_parse.split(' ')),
+                '◆ Lines:': len(self.data_to_parse.split('\n'))
+            }
+        )
 
 
     def write_data_to_file(self):
         """
-        Function to write data to a new file
+        Function to write extracted links to a new file
         """
         
-        with open(self.file_to_save_extracted_links, 'a+', encoding='utf-8') as f_new:
+        with open(self.new_file_location, 'a+', encoding='utf-8') as f_new:
             
             # Heading
             f_new.writelines("•" * 84)
             f_new.writelines(
-                f'\n● Links extracted from "{self.original_file_name}"\n'
+                f'\n● Links extracted from "{self.source_location}"\n'
                 f'● {General_Class.get_current_date_and_time()}\n\n'
             )
             
@@ -137,11 +251,11 @@ class Extract_Links:
             f_new.writelines("‾" * 100)
             f_new.writelines('\n\n\n')
             
-            # Conclusion
-            print(
-                f'{Fore.BLUE}{conclusion}\n'
-                f'{Fore.YELLOW}=> Data saved to "{self.file_to_save_extracted_links}"'
-            )
+        # Print conclusion
+        print(
+            f'{Fore.BLUE}{conclusion}\n'
+            f'{Fore.YELLOW}=> Data saved to "{self.new_file_location}"'
+        )
 
 
 
@@ -228,11 +342,11 @@ class General_Class:
 
 ################################################################### Third party modules
 
-# Import: Third party modules
+# TRY: Importing Third party modules
+# EXCEPT: Installing & importing missing imports
+
 try:
     from colorama import Fore
-
-# Installing missing imports
 except:
     # Asks permission
     if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
@@ -245,12 +359,12 @@ except:
         # Process
         print('\n')
         print('*' * 50)
-        try:                                            # Installing
+        try:                                                            # Installing
             General_Class.import_modules(modules_list)
-        except Exception as e:                          # Error catching
+        except Exception as e:                                          # Error catching
             input(f'=> [Error]: {e}. Press enter to exit...')
             sys.exit()
-        else:                                           # Importing
+        else:                                                           # Importing
             from colorama import Fore
             input('> Press Enter to continue...')
         print('*' * 50)
@@ -264,6 +378,7 @@ except:
 
 # Main Program
 if __name__ == "__main__":
+    print(Style.BRIGHT, end='')
     while True:
         Extract_Links()
         print('\n\n')
