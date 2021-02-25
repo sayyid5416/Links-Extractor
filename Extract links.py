@@ -53,7 +53,7 @@ class Extract_Links:
             
             # Web Crawling
             if self.user_choice == '5':
-                ques = 'Enter WEB-Page address to extract links from it (Ex: https://github.com/hussain5416)'
+                ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
                 rep_list = [('\\', '/')]
                 self.webcrawl = True
                 
@@ -63,6 +63,9 @@ class Extract_Links:
                 remove_quotes=True,
                 replace_tuple_list=rep_list
             )
+            if self.webcrawl:
+                if '://' not in self.source_location:
+                    self.source_location = f'https://{self.source_location}'        # Add https://, if not present
             
             # File name for extracted links
             file_name = self.source_location
@@ -129,12 +132,10 @@ class Extract_Links:
             self.extract_links_from_string()                    # Extract links
             self.write_data_to_file()                           # Write links to a file
             
-            
         except FileNotFoundError:
             print(
                 f'{Fore.RED}=> [Error] "{self.source_location}" not found. Write the proper file name...'
             )
-            
             
         else:
             # Open saved extracted links file
