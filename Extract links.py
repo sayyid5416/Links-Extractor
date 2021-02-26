@@ -1,5 +1,5 @@
 # Imports
-import os, sys, subprocess, re, threading, requests
+import os, sys, subprocess, re, threading
 from datetime import datetime
 from colorama.ansi import Style
 
@@ -348,13 +348,15 @@ class General_Class:
 
 try:
     from colorama import Fore
+    import requests
 except:
     # Asks permission
     if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
         
         # Modules to install
         modules_list = [
-            'colorama'
+            'colorama',
+            'requests'
         ]                       
         
         # Process
@@ -367,6 +369,7 @@ except:
             sys.exit()
         else:                                                           # Importing
             from colorama import Fore
+            import requests
             input('> Press Enter to continue...')
         print('*' * 50)
         print('\n\n')
