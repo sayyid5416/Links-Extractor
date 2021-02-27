@@ -1,8 +1,8 @@
-# Imports
+############################################################################################## Imports
 import os, sys, subprocess, re, threading
 from datetime import datetime
 
-def import_third_party_modules():                                                               #improve unify
+def import_third_party_modules():
     """
     Function to install third party modules
     """
@@ -20,15 +20,15 @@ def import_third_party_modules():                                               
     import requests
 
 
+############################################################################################## PROGRAM
+
 app_version = '1.5'
 github_link = 'https://github.com/hussain5416/extract_links'
-
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
     os.system(f'title Extract links from a file [v{app_version}] -- {github_link}')
-
 
 
 def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[]):
@@ -53,9 +53,10 @@ def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[
     return x
 
 
-
-# Main Extraction class
 class Extract_Links:
+    """
+    Main Links Extraction class
+    """    
 
     def __init__(self):
         super().__init__()
@@ -277,8 +278,6 @@ class Extract_Links:
         )
 
 
-
-# General class
 class General_Class:
     """
     This class contains general methods
@@ -359,10 +358,7 @@ class General_Class:
         return new_list
 
 
-################################################################### Third party modules
-
-# TRY: Importing Third party modules
-# EXCEPT: Installing & importing missing imports
+############################ TRY-Import ::: EXCEPT-Install & import missing modules ########################
 try:
     import_third_party_modules()
 except:
@@ -386,9 +382,7 @@ except:
         sys.exit()
         
 
-################################################################### RUN
-
-# Main Program
+############################################################################################## Run Main Program
 if __name__ == "__main__":
     print(Style.BRIGHT, end='')
     while True:
