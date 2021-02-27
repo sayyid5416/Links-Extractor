@@ -1,10 +1,28 @@
 # Imports
 import os, sys, subprocess, re, threading
 from datetime import datetime
-from colorama.ansi import Style
+
+def import_third_party_modules():                                                               #improve unify
+    """
+    Function to install third party modules
+    """
+    
+    global modules_list, Fore, Style, requests
+    
+    # Modules to install
+    modules_list = [
+        'colorama',
+        'requests'
+    ]
+
+    from colorama import Fore
+    from colorama.ansi import Style
+    import requests
+
 
 app_version = '1.5'
 github_link = 'https://github.com/hussain5416/extract_links'
+
 
 # Console properties
 if __name__ == "__main__":
@@ -345,20 +363,11 @@ class General_Class:
 
 # TRY: Importing Third party modules
 # EXCEPT: Installing & importing missing imports
-
 try:
-    from colorama import Fore
-    import requests
+    import_third_party_modules()
 except:
     # Asks permission
     if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
-        
-        # Modules to install
-        modules_list = [
-            'colorama',
-            'requests'
-        ]                       
-        
         # Process
         print('\n')
         print('*' * 50)
@@ -368,8 +377,7 @@ except:
             input(f'=> [Error]: {e}. Press enter to exit...')
             sys.exit()
         else:                                                           # Importing
-            from colorama import Fore
-            import requests
+            import_third_party_modules()
             input('> Press Enter to continue...')
         print('*' * 50)
         print('\n\n')
