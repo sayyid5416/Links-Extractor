@@ -1,7 +1,26 @@
-# Imports
-import os, sys, subprocess, re, threading, requests
+############################################################################################## Imports
+import os, sys, subprocess, re, threading
 from datetime import datetime
-from colorama.ansi import Style
+
+def import_third_party_modules():
+    """
+    Function to install third party modules
+    """
+    
+    global modules_list, Fore, Style, requests
+    
+    # Modules to install
+    modules_list = [
+        'colorama',
+        'requests'
+    ]
+
+    from colorama import Fore
+    from colorama.ansi import Style
+    import requests
+
+
+############################################################################################## PROGRAM
 
 app_version = '1.5'
 github_link = 'https://github.com/hussain5416/extract_links'
@@ -10,7 +29,6 @@ github_link = 'https://github.com/hussain5416/extract_links'
 if __name__ == "__main__":
     os.system('color 07')
     os.system(f'title Extract links from a file [v{app_version}] -- {github_link}')
-
 
 
 def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[]):
@@ -35,9 +53,10 @@ def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[
     return x
 
 
-
-# Main Extraction class
 class Extract_Links:
+    """
+    Main Links Extraction class
+    """    
 
     def __init__(self):
         super().__init__()
@@ -53,7 +72,7 @@ class Extract_Links:
             
             # Web Crawling
             if self.user_choice == '5':
-                ques = 'Enter WEB-Page address to extract links from it (Ex: https://github.com/hussain5416)'
+                ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
                 rep_list = [('\\', '/')]
                 self.webcrawl = True
                 
@@ -63,6 +82,9 @@ class Extract_Links:
                 remove_quotes=True,
                 replace_tuple_list=rep_list
             )
+            if self.webcrawl:
+                if '://' not in self.source_location:
+                    self.source_location = f'https://{self.source_location}'        # Add https://, if not present
             
             # File name for extracted links
             file_name = self.source_location
@@ -129,12 +151,10 @@ class Extract_Links:
             self.extract_links_from_string()                    # Extract links
             self.write_data_to_file()                           # Write links to a file
             
-            
         except FileNotFoundError:
             print(
                 f'{Fore.RED}=> [Error] "{self.source_location}" not found. Write the proper file name...'
             )
-            
             
         else:
             # Open saved extracted links file
@@ -258,8 +278,6 @@ class Extract_Links:
         )
 
 
-
-# General class
 class General_Class:
     """
     This class contains general methods
@@ -340,22 +358,12 @@ class General_Class:
         return new_list
 
 
-################################################################### Third party modules
-
-# TRY: Importing Third party modules
-# EXCEPT: Installing & importing missing imports
-
+############################ TRY-Import ::: EXCEPT-Install & import missing modules ########################
 try:
-    from colorama import Fore
+    import_third_party_modules()
 except:
     # Asks permission
     if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
-        
-        # Modules to install
-        modules_list = [
-            'colorama'
-        ]                       
-        
         # Process
         print('\n')
         print('*' * 50)
@@ -365,7 +373,7 @@ except:
             input(f'=> [Error]: {e}. Press enter to exit...')
             sys.exit()
         else:                                                           # Importing
-            from colorama import Fore
+            import_third_party_modules()
             input('> Press Enter to continue...')
         print('*' * 50)
         print('\n\n')
@@ -374,9 +382,7 @@ except:
         sys.exit()
         
 
-################################################################### RUN
-
-# Main Program
+############################################################################################## Run Main Program
 if __name__ == "__main__":
     print(Style.BRIGHT, end='')
     while True:
