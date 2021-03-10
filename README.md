@@ -5,10 +5,9 @@ Above screenshot is older version [v1.0](https://github.com/hussain5416/Extract_
 - There are many other great features, [Read about those features & changelog here](https://github.com/hussain5416/Extract_Links/releases)
 
 # Required Libraries:
-Installation: `pip install library_name`
-> These required libraries will be installed automatically, if missing.
-- colorama
-- requests
+Installation: `pip install -r requirements.txt`
+> - These required libraries will be installed automatically, if missing.
+> - Inside `requirements.txt`
 
 # Developer
 - Hussain Abbas
