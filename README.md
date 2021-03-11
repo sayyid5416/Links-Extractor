@@ -10,9 +10,16 @@
 - Above screenshot is older version [v1.0](https://github.com/hussain5416/Extract_Links/releases/tag/v1.0)
 - [Check all the features & changelog here](https://github.com/hussain5416/Extract_Links/releases)
 
-# Required Libraries:
-Installation: `pip install -r requirements.txt`
-> - Inside _**requirements.txt**_
+# Installation
+## You can use this app in two ways:
+  1. ### As python script
+     - Donwload the source code
+     - Install required libraries: `pip install -r requirements.txt`
+     - Launch `Link_Extractor.py`
+  2. ### As an executable
+     1. Download executable directly from [release page](https://github.com/hussain5416/Links-Extractor/releases), or
+     2. Create your own executable from the source code
+
 
 # Developer
 - Hussain Abbas
