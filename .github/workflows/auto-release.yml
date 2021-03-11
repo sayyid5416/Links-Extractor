@@ -1,12 +1,12 @@
-name: "Release-Draft"
+name: "Beta-release"
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  Release-Draft:
-    name: "Release-Draft"
+  Beta-release:
+  
     runs-on: "ubuntu-latest"
 
     steps:
@@ -18,7 +18,6 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: true
-          automatic_release_tag: 'latest'
-          draft: true
-          title: "Links Extractor pre-release"
+          automatic_release_tag: 'Beta'
+          title: "Links Extractor BETA"
           files: |
