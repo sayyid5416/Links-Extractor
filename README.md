@@ -4,8 +4,10 @@
 - Extract **different types of links** *(web/mail/ftp e.t.c)* from:
   - Text version of **any file** *(txt, csv, json, html, py e.t.c)* 
   - Any **website** (ex: abc.com/xyz/pqrs)
-  - Without worrying about issues like duplicates.
-Above screenshot is older version [v1.0](https://github.com/hussain5416/Extract_Links/releases/tag/v1.0)
+  - Without worrying about issues like **duplicates**
+  - Additional data like **timestamp** and **Total counts** will be saved too
+- File containing extracted links will be saved to `Desktop`
+- Above screenshot is older version [v1.0](https://github.com/hussain5416/Extract_Links/releases/tag/v1.0)
 - [Check all the features & changelog here](https://github.com/hussain5416/Extract_Links/releases)
 
 # Required Libraries:
