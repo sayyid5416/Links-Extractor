@@ -70,7 +70,17 @@ class Extract_Links:
             file_name = self.source_location
             for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
                 file_name = file_name.replace(i, '-')
-            self.new_file_location = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'   # TODO Change location to 'desktop' folder
+            new_folder_location = os.path.join(
+                os.environ['USERPROFILE'], 
+                'Desktop'
+            )
+            if not os.path.exists(new_folder_location):
+                os.makedirs(new_folder_location)
+            new_f_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
+            self.new_file_location = os.path.join(
+                new_folder_location,
+                new_f_name
+            )
                 
             ## Main links extraction function
             self.main_extracting_fctn()
