@@ -15,7 +15,7 @@ if __name__ == "__main__":
     os.system(f'title {app_name} - {github_link}')
 
 
-def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[]):
+def take_user_input(question_text:str, replace_tuple_list=[]):
     """
     This function asks user input and returns the modified text
     """    
@@ -23,9 +23,6 @@ def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[
     x = input(
         f'{Fore.WHITE}> {question_text}: {Fore.LIGHTBLUE_EX}'
     )
-    
-    # if remove_quotes:
-    #     x.removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
     
     if replace_tuple_list != []:
         for rep_tuple in replace_tuple_list:
@@ -63,7 +60,6 @@ class Extract_Links:
             # Old location user input
             self.source_location = take_user_input(
                 question_text=ques,
-                remove_quotes=True,
                 replace_tuple_list=rep_list
             )
             if self.webcrawl:
@@ -74,7 +70,17 @@ class Extract_Links:
             file_name = self.source_location
             for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
                 file_name = file_name.replace(i, '-')
-            self.new_file_location = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
+            new_folder_location = os.path.join(
+                os.environ['USERPROFILE'], 
+                'Desktop'
+            )
+            if not os.path.exists(new_folder_location):
+                os.makedirs(new_folder_location)
+            new_f_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
+            self.new_file_location = os.path.join(
+                new_folder_location,
+                new_f_name
+            )
                 
             ## Main links extraction function
             self.main_extracting_fctn()
