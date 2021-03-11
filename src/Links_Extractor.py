@@ -79,9 +79,9 @@ class Extract_Links:
             ## Main links extraction function
             self.main_extracting_fctn()
             
-        except:
+        except Exception as e:
             print(
-                f'{Fore.RED}=> [Error] Something went wrong. Try again...'
+                f'{Fore.RED}=> [Error 1] {e}, Try again...'
             )
     
     
@@ -117,7 +117,7 @@ class Extract_Links:
 
     def main_extracting_fctn(self):
         
-        try:    
+        try:
             ## Getting data from source location
             if self.webcrawl:
                 self.data_to_parse = requests.get(
@@ -138,6 +138,11 @@ class Extract_Links:
         except FileNotFoundError:
             print(
                 f'{Fore.RED}=> [Error] "{self.source_location}" not found. Write the proper file name...'
+            )
+                
+        except Exception as e:
+            print(
+                f'{Fore.RED}=> [Error 2] {e}, Try again...'
             )
             
         else:
