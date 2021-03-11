@@ -1,34 +1,18 @@
-############################################################################################## Imports
-import os, sys, subprocess, re, threading
+# Imports
+import os, re, threading, requests
 from datetime import datetime
-
-def import_third_party_modules():
-    """
-    Function to install third party modules
-    """
-    
-    global modules_list, Fore, Style, requests
-    
-    # Modules to install
-    modules_list = [
-        'colorama',
-        'requests'
-    ]
-
-    from colorama import Fore
-    from colorama.ansi import Style
-    import requests
+from colorama import Fore
+from colorama.ansi import Style
 
 
-############################################################################################## PROGRAM
+app_name = 'Links Extractor'
+github_link = 'github.com/hussain5416/extract_links'
 
-app_version = '1.5'
-github_link = 'https://github.com/hussain5416/extract_links'
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
-    os.system(f'title Extract links from a file [v{app_version}] -- {github_link}')
+    os.system(f'title {app_name} - {github_link}')
 
 
 def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[]):
@@ -117,7 +101,7 @@ class Extract_Links:
         
         # Printing choices
         print(Fore.WHITE, end='')
-        print(f'Links Extractor v{app_version}'.title().center(os.get_terminal_size().columns))
+        print(app_name.center(os.get_terminal_size().columns))
         for key, val in choice_dict.items():
             print('', key, '-', val[0], val[1])
         
@@ -284,28 +268,6 @@ class General_Class:
     """        
 
     @staticmethod
-    def import_modules(list_of_modules):
-        """
-        This function install the modules
-
-        Args:
-            list_of_modules (list): These modules will be installed, if not present
-        """
-        
-        # Start
-        print('=> Modules installation started <=\n')
-        
-        # Installing modules
-        for module in list_of_modules:
-            subprocess.run(
-                f'pip install {module}'
-            )
-        
-        # Success
-        print('\n=> All modules installed successfully <=')
-
-    
-    @staticmethod
     def get_current_date_and_time():
         """
         Returns: string: customised date and time
@@ -358,29 +320,6 @@ class General_Class:
         return new_list
 
 
-############################ TRY-Import ::: EXCEPT-Install & import missing modules ########################
-try:
-    import_third_party_modules()
-except:
-    # Asks permission
-    if input(f'=> [Error] Some modules missing. Install missing modules? (y/n) ') == 'y':
-        # Process
-        print('\n')
-        print('*' * 50)
-        try:                                                            # Installing
-            General_Class.import_modules(modules_list)
-        except Exception as e:                                          # Error catching
-            input(f'=> [Error]: {e}. Press enter to exit...')
-            sys.exit()
-        else:                                                           # Importing
-            import_third_party_modules()
-            input('> Press Enter to continue...')
-        print('*' * 50)
-        print('\n\n')
-
-    else:
-        sys.exit()
-        
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
