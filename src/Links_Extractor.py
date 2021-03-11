@@ -24,8 +24,8 @@ def take_user_input(question_text:str, remove_quotes=False, replace_tuple_list=[
         f'{Fore.WHITE}> {question_text}: {Fore.LIGHTBLUE_EX}'
     )
     
-    if remove_quotes:
-        x.removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
+    # if remove_quotes:
+    #     x.removeprefix('"').removesuffix('"').removeprefix("'").removesuffix("'")
     
     if replace_tuple_list != []:
         for rep_tuple in replace_tuple_list:
