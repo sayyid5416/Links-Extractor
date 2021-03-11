@@ -6,13 +6,13 @@ from colorama.ansi import Style
 
 
 app_name = 'Links Extractor'
-github_link = 'github.com/hussain5416/extract_links'
+github_link = 'https://github.com/hussain5416/Links-Extractor'
 
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
-    os.system(f'title {app_name} - {github_link}')
+    os.system(f'title {app_name}')
 
 
 def take_user_input(question_text:str, replace_tuple_list=[]):
@@ -108,6 +108,7 @@ class Extract_Links:
         # Printing choices
         print(Fore.WHITE, end='')
         print(app_name.center(os.get_terminal_size().columns))
+        print(f'({github_link})'.center(os.get_terminal_size().columns))
         for key, val in choice_dict.items():
             print('', key, '-', val[0], val[1])
         
