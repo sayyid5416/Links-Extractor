@@ -1,18 +1,21 @@
 # Imports
-import os, re, threading, requests
-from datetime import datetime
-from colorama import Fore
-from colorama.ansi import Style
-
+import os
 
 app_name = 'Links Extractor'
 github_link = 'https://github.com/hussain5416/Links-Extractor'
-
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
     os.system(f'title {app_name}')
+
+
+# Imports
+import re, threading, requests
+from datetime import datetime
+from colorama import Fore
+from colorama.ansi import Style
+
 
 
 def take_user_input(question_text:str, replace_tuple_list=[]):
