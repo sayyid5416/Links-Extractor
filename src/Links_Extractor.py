@@ -11,11 +11,10 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests
+import re, threading, requests, winshell
 from datetime import datetime
 from colorama import Fore
 from colorama.ansi import Style
-import pythoncom, win32com.client
 
 
 
@@ -95,9 +94,8 @@ class Extract_Links:
         new_f_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
         
         # Parent Folder location
-        new_folder_location = General_Class.get_folder_location('Desktop')
         new_folder_location = os.path.join(
-            new_folder_location,
+            winshell.desktop(),
             'Extracted Links'
         )
         if not os.path.exists(new_folder_location):
@@ -352,26 +350,6 @@ class General_Class:
         
         return new_list
 
-
-    @staticmethod
-    def get_folder_location(folder_name:str):
-        """
-        This function gets the special windows folder location
-            folder_name:
-                - AllUsersDesktop, AllUsersStartMenu, AllUsersPrograms, AllUsersStartup, 
-                - Desktop, Favorites, Fonts, MyDocuments, NetHood, PrintHood, 
-                - Recent, SendTo, StartMenu, Startup & Templates E.T.C
-            Returns:
-                str: Absolute folder location
-        """                
-        
-        pythoncom.CoInitialize()                            # Threading support
-        
-        folder_location = win32com.client.Dispatch(
-            "WScript.Shell"
-        ).SpecialFolders(folder_name)                       # Get folder location
-        
-        return str(folder_location)
     
 
 ############################################################################################## Run Main Program
