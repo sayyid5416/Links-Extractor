@@ -1,13 +1,16 @@
 # Extract Links
-![extract-links](https://user-images.githubusercontent.com/78584556/107383346-e9bf1a00-6b16-11eb-9a09-0c19535b3fd8.jpg)
+
+From files on your PC             |  From any website
+:-------------------------:|:-------------------------:
+![extract from local file on pc](https://user-images.githubusercontent.com/78584556/110972904-8b3dc380-8382-11eb-8ea4-77f08a9e3fe7.png) | ![extract links from any website](https://user-images.githubusercontent.com/78584556/110972925-9395fe80-8382-11eb-8427-de5fe551621b.png)
 
 - Extract **different types of links** *(web/mail/ftp e.t.c)* from:
   - Text version of **any file** *(txt, csv, json, html, py e.t.c)* 
   - Any **website** (ex: abc.com/xyz/pqrs)
   - Without worrying about issues like **duplicates**
   - Additional data like **timestamp** and **Total counts** will be saved too
-- File containing extracted links will be saved to `Desktop`
-- Above screenshot is older version [v1.0](https://github.com/hussain5416/Extract_Links/releases/tag/v1.0)
+- File containing extracted links will be saved to `Desktop/Extracted links` folder.
+- Above screenshots are from [version 1.8](https://github.com/hussain5416/Extract_Links/releases/tag/v1.8)
 - [Check all the features & changelog here](https://github.com/hussain5416/Extract_Links/releases)
 
 # Installation
