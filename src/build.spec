@@ -1,10 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 block_cipher = None
-app_name = 'Links Extractor'
+
 
 a = Analysis(['Links_Extractor.py'],
-             pathex=['A:\\Documents\\GitHub Repos\\Extract_Links-1\\src'],
+             pathex=['A:\\Documents\\Programming\\GitHub Repos\\Links-Extractor\\src'],
              binaries=[],
              datas=[],
              hiddenimports=[],
@@ -19,20 +19,16 @@ pyz = PYZ(a.pure, a.zipped_data,
              cipher=block_cipher)
 exe = EXE(pyz,
           a.scripts,
+          a.binaries,
+          a.zipfiles,
+          a.datas,
           [],
-          exclude_binaries=True,
-          name=app_name,
-          icon='link.ico',
+          name='Links Extractor',
+          icon='app_icon.ico',
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
           upx=True,
+          upx_exclude=[],
+          runtime_tmpdir=None,
           console=True )
-coll = COLLECT(exe,
-               a.binaries,
-               a.zipfiles,
-               a.datas,
-               strip=False,
-               upx=True,
-               upx_exclude=[],
-               name=app_name)

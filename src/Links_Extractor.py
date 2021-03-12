@@ -1,18 +1,22 @@
 # Imports
-import os, re, threading, requests
-from datetime import datetime
-from colorama import Fore
-from colorama.ansi import Style
-
+import os
 
 app_name = 'Links Extractor'
 github_link = 'https://github.com/hussain5416/Links-Extractor'
-
 
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
     os.system(f'title {app_name}')
+
+
+# Imports
+import re, threading, requests
+from datetime import datetime
+from colorama import Fore
+from colorama.ansi import Style
+import pythoncom, win32com.client
+
 
 
 def take_user_input(question_text:str, replace_tuple_list=[]):
@@ -66,21 +70,8 @@ class Extract_Links:
                 if '://' not in self.source_location:
                     self.source_location = f'https://{self.source_location}'        # Add https://, if not present
             
-            # File name for extracted links
-            file_name = self.source_location
-            for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
-                file_name = file_name.replace(i, '-')
-            new_folder_location = os.path.join(
-                os.environ['USERPROFILE'], 
-                'Desktop'
-            )
-            if not os.path.exists(new_folder_location):
-                os.makedirs(new_folder_location)
-            new_f_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
-            self.new_file_location = os.path.join(
-                new_folder_location,
-                new_f_name
-            )
+            # NEW FILE - for extracted links
+            self.new_file_location = self.get_extracted_file_location(choices_dict)
                 
             ## Main links extraction function
             self.main_extracting_fctn()
@@ -90,6 +81,36 @@ class Extract_Links:
                 f'{Fore.RED}=> [Error 1] {e}, Try again...'
             )
     
+    
+    def get_extracted_file_location(self, choices_dict):
+        """
+        - RETURNS the file location of NEW FILE, for extracted links
+        - Creates parent folder - if missing
+        """        
+        
+        # New File Name
+        file_name = self.source_location
+        for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
+            file_name = file_name.replace(i, '-')
+        new_f_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
+        
+        # Parent Folder location
+        new_folder_location = General_Class.get_folder_location('Desktop')
+        new_folder_location = os.path.join(
+            new_folder_location,
+            'Extracted Links'
+        )
+        if not os.path.exists(new_folder_location):
+            os.makedirs(new_folder_location)
+            
+        # New File location
+        new_file_loctn = os.path.join(
+            new_folder_location,
+            new_f_name
+        )
+        
+        return new_file_loctn
+        
     
     def asks_user_choice(self):
         """
@@ -332,6 +353,26 @@ class General_Class:
         return new_list
 
 
+    @staticmethod
+    def get_folder_location(folder_name:str):
+        """
+        This function gets the special windows folder location
+            folder_name:
+                - AllUsersDesktop, AllUsersStartMenu, AllUsersPrograms, AllUsersStartup, 
+                - Desktop, Favorites, Fonts, MyDocuments, NetHood, PrintHood, 
+                - Recent, SendTo, StartMenu, Startup & Templates E.T.C
+            Returns:
+                str: Absolute folder location
+        """                
+        
+        pythoncom.CoInitialize()                            # Threading support
+        
+        folder_location = win32com.client.Dispatch(
+            "WScript.Shell"
+        ).SpecialFolders(folder_name)                       # Get folder location
+        
+        return str(folder_location)
+    
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
