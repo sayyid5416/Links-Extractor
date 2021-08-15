@@ -137,7 +137,6 @@ class Extract_Links:
         # Printing choices
         print(Fore.WHITE, end='')
         print(app_name.center(os.get_terminal_size().columns))
-        print(f'({github_link})'.center(os.get_terminal_size().columns))
         for key, val in choice_dict.items():
             print('', key, '-', val[0], val[1])
         
