@@ -1,6 +1,5 @@
 # Imports
 import os
-import time
 
 app_name = 'Links Extractor'
 github_link = 'https://github.com/hussain5416/Links-Extractor'
@@ -13,7 +12,7 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests, winshell, webbrowser
+import re, threading, requests, winshell, webbrowser, time
 from datetime import datetime
 from colorama import Fore
 from colorama.ansi import Style
