@@ -5,6 +5,7 @@ import time
 app_name = 'Links Extractor'
 github_link = 'https://github.com/hussain5416/Links-Extractor'
 
+
 # Console properties
 if __name__ == "__main__":
     os.system('color 07')
@@ -36,6 +37,9 @@ def take_user_input(question_text:str, replace_tuple_list=[]):
             )
 
     return x
+
+
+
 
 
 class Extract_Links:
@@ -384,6 +388,7 @@ class General_Class:
         return new_list
 
     
+
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
