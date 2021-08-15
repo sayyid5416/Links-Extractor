@@ -1,5 +1,6 @@
 # Imports
 import os
+import time
 
 app_name = 'Links Extractor'
 github_link = 'https://github.com/hussain5416/Links-Extractor'
@@ -11,7 +12,7 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests, winshell, time, webbrowser
+import re, threading, requests, winshell, webbrowser
 from datetime import datetime
 from colorama import Fore
 from colorama.ansi import Style
@@ -52,8 +53,7 @@ class Extract_Links:
             print(f'{Fore.RESET}', end='')
             
             if self.user_choice == '6':
-                threading.Thread(target=self.show_about_data).start()
-                time.sleep(2)
+                self.show_about_data()
                 raise ZeroDivisionError
             
             # Local file Crawling
@@ -307,9 +307,21 @@ class Extract_Links:
             f"""
                 App Name: Links Extractor
                 Creator: Hussain Abbas
-                App Webpage: {github_link}
+                App Webpage: {github_link}\n\n
             """
         )
+        update_check = take_user_input('Check for updates? (y/n) ')
+        print(f'{Fore.GREEN}', end='')
+        if update_check.lower() in ['y', 'yes']:
+            threading.Thread(
+                target=lambda: webbrowser.open(
+                    f'{github_link}/releases/latest'
+                )
+            ).start()
+            print('[Opening the app update page....]\n\n')
+            time.sleep(2)
+        else:
+            print('[Skipped]')
 
 
 
