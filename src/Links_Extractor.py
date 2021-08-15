@@ -307,11 +307,10 @@ class Extract_Links:
 
     def show_about_data(self):
         print(
-            f"""
-                App Name: Links Extractor
-                Creator: Hussain Abbas
-                App Webpage: {github_link}\n\n
-            """
+            f'{Fore.GREEN}'
+            "App Name: Links Extractor\n" \
+            "Creator: Hussain Abbas\n" \
+            f"App Webpage: {github_link}\n"
         )
         update_check = take_user_input('Check for updates? (y/n) ')
         print(f'{Fore.GREEN}', end='')
