@@ -11,7 +11,7 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests, winshell
+import re, threading, requests, winshell, time, webbrowser
 from datetime import datetime
 from colorama import Fore
 from colorama.ansi import Style
@@ -49,6 +49,12 @@ class Extract_Links:
         try:
             # User choices
             choices_dict, self.user_choice = self.asks_user_choice()
+            print(f'{Fore.RESET}', end='')
+            
+            if self.user_choice == '6':
+                threading.Thread(target=self.show_about_data).start()
+                time.sleep(2)
+                raise ZeroDivisionError
             
             # Local file Crawling
             ques = 'Enter file name to extract links from it (relative/absolute path)'
@@ -74,6 +80,9 @@ class Extract_Links:
                 
             ## Main links extraction function
             self.main_extracting_fctn()
+        
+        except ZeroDivisionError:                                   # [False Error] For user initiated errors
+            pass
             
         except Exception as e:
             print(
@@ -121,7 +130,8 @@ class Extract_Links:
             '2': ('FTP links', '(ftp)'),
             '3': ('MAIL links', '(mailto)'),
             '4': ('All types of links', ''),
-            '5': ('Web-Crawl', '(all links)')
+            '5': ('Web-Crawl', '(all links)'),
+            '6': ('About', '')
         }
         
         # Printing choices
@@ -291,6 +301,18 @@ class Extract_Links:
             f'{Fore.BLUE}{conclusion}\n'
             f'{Fore.YELLOW}=> Data saved to "{self.new_file_location}"'
         )
+
+
+    def show_about_data(self):
+        print(
+            f"""
+                App Name: Links Extractor
+                Creator: Hussain Abbas
+                App Webpage: {github_link}
+            """
+        )
+
+
 
 
 class General_Class:
