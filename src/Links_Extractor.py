@@ -390,7 +390,6 @@ class General_Class:
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
-    print(Style.BRIGHT, end='')
     while True:
         Extract_Links()
         print('\n\n')
