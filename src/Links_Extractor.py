@@ -15,7 +15,6 @@ if __name__ == "__main__":
 import re, threading, requests, winshell, webbrowser, time
 from datetime import datetime
 from colorama import Fore
-from colorama.ansi import Style
 
 
 
