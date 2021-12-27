@@ -18,7 +18,18 @@ from colorama import Fore
 
 
 
-def take_user_input(question:str, replaceList=[]):
+# Choices dict
+choiceDict = {
+    '1': ('Web links', '(http/https)'),
+    '2': ('FTP links', '(ftp)'),
+    '3': ('MAIL links', '(mailto)'),
+    '4': ('All types of links', ''),
+    '5': ('Web-Crawl', '(all links)'),
+    '6': ('About', '')
+}
+
+
+def takeUserInput(question:str, replaceList=[]):
     """
     This function asks user input and returns the modified text
     """    
@@ -46,40 +57,57 @@ class Extract_Links:
         
         try:
             # User choices
-            choices_dict, self.user_choice = self.asks_user_choice()
+            print(Fore.WHITE, end='')
+            self.userChoice = self.asks_user_choice()
             print(f'{Fore.RESET}', end='')
             
-            if self.user_choice == '6':
+            if self.userChoice == '6':
                 self.show_about_data()
-                raise ZeroDivisionError
-            
-            # Local file Crawling
-            ques = 'Enter file name to extract links from it (relative/absolute path)'
-            rep_list = [('/', '\\')]
-            
-            # Web Crawling
-            if self.user_choice == '5':
-                ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
-                rep_list = [('\\', '/')]
-                self.webcrawl = True
+            else:
+                # Local file Crawling
+                ques = 'Enter file name to extract links from it (relative/absolute path)'
+                rep_list = [('/', '\\')]
                 
-            # Old location user input
-            self.source_location = take_user_input(ques, rep_list)
-            if self.webcrawl:
-                if '://' not in self.source_location:
-                    self.source_location = f'https://{self.source_location}'        # Add https://, if not present
-            
-            # NEW FILE - for extracted links
-            self.new_file_location = self.get_extracted_file_location(choices_dict)
+                # Web Crawling
+                if self.userChoice == '5':
+                    ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
+                    rep_list = [('\\', '/')]
+                    self.webcrawl = True
+                    
+                # Old location user input
+                self.dataSource = takeUserInput(ques, rep_list)
+                if self.webcrawl:
+                    if '://' not in self.dataSource:
+                        self.dataSource = f'https://{self.dataSource}'        # Add https://, if not present
                 
-            ## Main links extraction function
-            self.main_extracting_fctn()
+                # NEW FILE - for extracted links
+                self.fileLocation = self.get_extracted_file_location(choiceDict)
+                    
+                ## Main links extraction function
+                self.main_extracting_fctn()
         
-        except ZeroDivisionError:                                   # [False Error] For user initiated errors
-            pass
         except Exception as e:
             print(f'{Fore.RED}=> [Error 1] {e}, Try again...')
     
+    def asks_user_choice(self):
+        """
+        This function shows user the choices and returns dict and the user choice
+        """
+        # Printing choices
+        choices = ''
+        for a, b in choiceDict.items():
+            choices += f' {a} - {b[0]} {b[1]}\n'
+        print(app_name.center(os.get_terminal_size().columns))
+        print(choices)
+        
+        # Asking for user choice
+        question = f'Enter your choice ({"/".join(choiceDict)})'
+        choice = takeUserInput(question)
+        while choice not in choiceDict:
+            choice = takeUserInput(question)
+        print()
+        
+        return choice
     
     def get_extracted_file_location(self, choices_dict):
         """
@@ -88,10 +116,10 @@ class Extract_Links:
         """        
         
         # New File Name
-        file_name = self.source_location
+        file_name = self.dataSource
         for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
             file_name = file_name.replace(i, '-')
-        new_f_name = f'{choices_dict[self.user_choice][0]} - {file_name}.txt'
+        new_f_name = f'{choices_dict[self.userChoice][0]} - {file_name}.txt'
         
         # Parent Folder location
         new_folder_location = os.path.join(
@@ -108,54 +136,22 @@ class Extract_Links:
         )
         
         return new_file_loctn
-        
     
-    def asks_user_choice(self):
-        """
-        This function shows user the choices and returns dict and the user choice
-        """        
-        
-        # Choices dict
-        choice_dict = {
-            '1': ('Web links', '(http/https)'),
-            '2': ('FTP links', '(ftp)'),
-            '3': ('MAIL links', '(mailto)'),
-            '4': ('All types of links', ''),
-            '5': ('Web-Crawl', '(all links)'),
-            '6': ('About', '')
-        }
-        
-        # Printing choices
-        print(Fore.WHITE, end='')
-        print(app_name.center(os.get_terminal_size().columns))
-        for key, val in choice_dict.items():
-            print('', key, '-', val[0], val[1])
-        
-        # Asking for user choice
-        choice_question = f'Enter your choice ({"/".join(choice_dict.keys())})'
-        choice = take_user_input(choice_question)
-        while not choice in choice_dict.keys():
-            choice = take_user_input(choice_question)
-        print()
-        
-        return choice_dict, choice
-    
-
     def main_extracting_fctn(self):
         
         try:
             ## Getting data from source location
             if self.webcrawl:
                 self.data_to_parse = requests.get(
-                    self.source_location
+                    self.dataSource
                 ).text                                                              # Source code of webpage
-                self.user_choice = '4'                                                      # for extracting all links
+                self.userChoice = '4'                                                      # for extracting all links
             else:                                                                   # Data from file
                 try:                                                                        # solve encoding issues
-                    with open(self.source_location, encoding='utf-8') as f:
+                    with open(self.dataSource, encoding='utf-8') as f:
                         self.data_to_parse = f.read()
                 except:
-                    with open(self.source_location) as f:
+                    with open(self.dataSource) as f:
                         self.data_to_parse = f.read()
                         
             self.extract_links_from_string()                    # Extract links
@@ -163,7 +159,7 @@ class Extract_Links:
             
         except FileNotFoundError:
             print(
-                f'{Fore.RED}=> [Error] "{self.source_location}" not found. Write the proper file name...'
+                f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...'
             )
                 
         except Exception as e:
@@ -174,10 +170,9 @@ class Extract_Links:
         else:
             # Open saved extracted links file
             threading.Thread(
-                target=lambda : os.system(f'""{self.new_file_location}""'),
+                target=lambda : os.system(f'""{self.fileLocation}""'),
                 daemon=True
             ).start()
-
 
     def extract_links_from_string(self):
         """
@@ -229,16 +224,16 @@ class Extract_Links:
         }
         
         # Links to extract
-        self.extracted_items_list = user_choice_dict[self.user_choice][1]
+        self.extracted_items_list = user_choice_dict[self.userChoice][1]
         
         # Additional data
         self.additional_items_dict = {}
         self.additional_items_dict.update(
             {
-                user_choice_dict[self.user_choice][0]: len(user_choice_dict[self.user_choice][1])
+                user_choice_dict[self.userChoice][0]: len(user_choice_dict[self.userChoice][1])
             }
         )
-        if self.user_choice == '4':
+        if self.userChoice == '4':
             self.additional_items_dict.update(
                 {
                     '        • Web links:': len(web_links),
@@ -253,19 +248,18 @@ class Extract_Links:
             }
         )
 
-
     def write_data_to_file(self):
         """
         Function to write extracted links to a new file
         """
         
-        with open(self.new_file_location, 'a+', encoding='utf-8') as f:
+        with open(self.fileLocation, 'a+', encoding='utf-8') as f:
             
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             f.write("•" * 84)
             f.write(
-                f'\n● Links extracted from "{self.source_location}"\n'
+                f'\n● Links extracted from "{self.dataSource}"\n'
                 f'● {currentTime}\n\n'
             )
             
@@ -285,9 +279,8 @@ class Extract_Links:
         # Print conclusion
         print(
             f'{Fore.BLUE}{conclusion}'
-            f'{Fore.YELLOW}=> Data saved to "{self.new_file_location}"'
+            f'{Fore.YELLOW}=> Data saved to "{self.fileLocation}"'
         )
-
 
     def show_about_data(self):
         print(
@@ -296,7 +289,7 @@ class Extract_Links:
             "Creator: Hussain Abbas\n" \
             f"App Webpage: {github_link}\n"
         )
-        update_check = take_user_input('Check for updates? (y/n) ')
+        update_check = takeUserInput('Check for updates? (y/n) ')
         print(f'{Fore.GREEN}', end='')
         if update_check.lower() in ['y', 'yes']:
             threading.Thread(
