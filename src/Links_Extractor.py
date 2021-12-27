@@ -129,10 +129,10 @@ class Extract_Links:
         try:
             # Getting data from source location
             if self.webcrawl:
-                dataToParse = requests.get(self.dataSource).text                    # Source code of webpage
-                self.userChoice = '4'                                                      # for extracting all links
-            else:                                                                   # Data from file
-                try:                                                                        # solve encoding issues
+                dataToParse = requests.get(self.dataSource).text                    # From Webpage
+                self.userChoice = '4'
+            else:                                                                   # From local file
+                try:
                     with open(self.dataSource, encoding='utf-8') as f:
                         dataToParse = f.read()
                 except Exception as e:
@@ -140,8 +140,8 @@ class Extract_Links:
                         dataToParse = f.read()
             
             # Extract links
-            retData = self.extract_links_from_string(dataToParse)                     # Extract links
-            self.write_data_to_file(retData[0], retData[1])                                       # Write links to a file
+            retData = self.extract_links_from_string(dataToParse)
+            self.write_data_to_file(retData[0], retData[1])
             
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...')
@@ -204,7 +204,6 @@ class Extract_Links:
         """
         
         with open(self.fileLocation, 'a+', encoding='utf-8') as f:
-            
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             f.write("•" * 84)
