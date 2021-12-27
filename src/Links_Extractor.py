@@ -195,20 +195,15 @@ class Extract_Links:
         """            
         
         # Extracting links from file
-        def extract_links_proper(regex_string:str):
+        def extract_links_proper(regex_string:str) -> list[str] :
             """
             This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
             """
-            
-            extracted_list = General_Class.non_duplicated_list(
-                re.findall(
-                    regex_string,
-                    self.data_to_parse,
-                    re.IGNORECASE
+            return list(
+                set(
+                    re.findall(regex_string, self.data_to_parse, re.IGNORECASE)
                 )
             )
-
-            return extracted_list
         
         web_links = extract_links_proper(
             r'(https?://[^("\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
@@ -221,7 +216,7 @@ class Extract_Links:
         )
 
         # User choice :: Links & Additional data
-        user_choice_dict = {
+        user_choice_dict :dict[str, tuple[str, list[str]]] = {
             '1': (
                 '◆ Web links:',
                 web_links
@@ -358,7 +353,6 @@ class General_Class:
         
         return f'{current_date}   {current_time}'
 
-
     @staticmethod
     def open_file(file_to_open):
         """
@@ -372,18 +366,6 @@ class General_Class:
         file_thread.setDaemon(True)
         file_thread.start()
     
-    
-    @staticmethod
-    def non_duplicated_list(original_list):
-        """
-        This function returns a list after removing all the duplicates
-        """
-
-        new_list = []
-        [new_list.append(item) for item in original_list if item not in new_list]
-        
-        return new_list
-
     
 
 
