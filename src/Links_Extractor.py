@@ -29,16 +29,17 @@ choiceDict = {
 }
 
 
-def takeUserInput(question:str, replaceList=[]):
-    """
-    This function asks user input and returns the modified text
-    """    
+def takeUserInput(question:str, replaceList=[], web:bool=False):
+    """ Asks user input & Returns: modified text """    
     
     x = input(f'{Fore.WHITE}> {question}: {Fore.LIGHTBLUE_EX}')
     
     if replaceList:
         for i in replaceList:
             x = x.replace(i[0], i[1])
+    
+    if web and '://' not in x:
+        x = 'https://' + x
 
     return x
 
@@ -96,15 +97,10 @@ class Extract_Links:
         # Ask for source location -> Get its data
         match self.userChoice:
             case '5':                                                                                       # Web
-                quest = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
-                self.dataSource = takeUserInput(quest, [('\\', '/')])
-                if '://' not in self.dataSource:
-                    self.dataSource = 'https://' + self.dataSource
+                self.dataSource = takeUserInput('Enter web-address (Ex: github.com/hussain5416)', [('\\', '/')], web=True)
                 dataToParse = requests.get(self.dataSource).text
-                self.userChoice = '4'                                     #to get all links from webpage
             case _:                                                                                         # Local-file
-                quest = 'Enter file name to extract links from it (relative/absolute path)'
-                self.dataSource = takeUserInput(quest, [('/', '\\')])
+                self.dataSource = takeUserInput('Enter relative/absolute file-path', [('/', '\\')])
                 try:
                     with open(self.dataSource, encoding='utf-8') as f:  dataToParse = f.read()
                 except Exception:
@@ -112,7 +108,8 @@ class Extract_Links:
         
         # Extract links
         retData = self.extractLinks(dataToParse)
-        if retData is None: raise ValueError('Wrong inputs')
+        if retData is None: 
+            raise ValueError('Wrong inputs')
         
         # Save data -> open saved file
         fileLocation = self.get_filePath()
@@ -153,6 +150,7 @@ class Extract_Links:
         mailLinks  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
 
         # Extracted links
+        if self.userChoice == '5': self.userChoice = '4'
         match self.userChoice:
             case '1':   text, linksList = '◆ Web links:', webLinks
             case '2':   text, linksList = '◆ FTP links:', ftpLinks
