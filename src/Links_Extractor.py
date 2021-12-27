@@ -65,9 +65,9 @@ class Extract_Links:
             match self.userChoice:
                 case '6':   self.show_about_data()
                 case _:     self.mainExtraction()
-                    
+        
         except FileNotFoundError:
-            print(f'{Fore.RED}=> [Error] Data source not found. Write proper file name...')
+            print(f'{Fore.RED}=> [Error] Source not found. Write proper file name...')
                 
         except Exception as e:
             print(f'{Fore.RED}=> [Error] {e}, Try again...')
@@ -97,17 +97,17 @@ class Extract_Links:
         # Ask for source location -> Get its data
         match self.userChoice:
             case '5':                                                                                       # Web
-                self.dataSource = takeUserInput('Enter web-address (Ex: github.com/hussain5416)', [('\\', '/')], web=True)
-                dataToParse = requests.get(self.dataSource).text
+                self.sourcePath = takeUserInput('Enter web-address (Ex: github.com/hussain5416)', [('\\', '/')], web=True)
+                sourceData = requests.get(self.sourcePath).text
             case _:                                                                                         # Local-file
-                self.dataSource = takeUserInput('Enter relative/absolute file-path', [('/', '\\')])
+                self.sourcePath = takeUserInput('Enter relative/absolute file-path', [('/', '\\')])
                 try:
-                    with open(self.dataSource, encoding='utf-8') as f:  dataToParse = f.read()
+                    with open(self.sourcePath, encoding='utf-8') as f:  sourceData = f.read()
                 except Exception:
-                    with open(self.dataSource) as f:                    dataToParse = f.read()
+                    with open(self.sourcePath) as f:                    sourceData = f.read()
         
         # Extract links
-        retData = self.get_extractedLinks(dataToParse)
+        retData = self.get_extractedLinks(sourceData)
         
         # Save data -> open saved file
         fileLocation = self.get_filePath()
@@ -122,7 +122,7 @@ class Extract_Links:
         - Creates parent folder - if missing
         """
         # File Name
-        fileName = self.dataSource
+        fileName = self.sourcePath
         for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
             fileName = fileName.replace(i, '-')
         fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
@@ -135,12 +135,12 @@ class Extract_Links:
         # File location
         return os.path.join(dirPath, fileName)
     
-    def get_extractedLinks(self, dataToParse:str):
+    def get_extractedLinks(self, sourceData:str):
         """
         Returns: (`extracted-links`, `extraction-summary`)
         """
         def getLinks(regex:str) -> set[str] :
-            return set(re.findall(regex, dataToParse, re.IGNORECASE))
+            return set(re.findall(regex, sourceData, re.IGNORECASE))
         
         # Extracting links from file
         webLinks   = getLinks(r'(https?://[^("\s<>)]+)')               # http[s]://anything_until (' ', <, >)
@@ -162,8 +162,8 @@ class Extract_Links:
             summaryDict.update({'        • Web links:'  : len(webLinks)})
             summaryDict.update({'        • FTP links:'  : len(ftpLinks)})
             summaryDict.update({'        • Mail links:' : len(mailLinks)})
-        summaryDict.update({'◆ Words:': len(dataToParse.split(' '))})
-        summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
+        summaryDict.update({'◆ Words:': len(sourceData.split(' '))})
+        summaryDict.update({'◆ Lines:': len(sourceData.split('\n'))})
         return linksList, summaryDict
 
     def saveToFile(self, fileLocation, extractedLinks:set[str], summary:dict[str, int]):
@@ -174,7 +174,7 @@ class Extract_Links:
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             f.write("•" * 84)
-            f.write(f'\n● Links extracted from "{self.dataSource}"\n● {currentTime}\n\n')
+            f.write(f'\n● Links extracted from "{self.sourcePath}"\n● {currentTime}\n\n')
             
             # Summary
             summaryData = [f'{a} {b}' for a, b in summary.items()]
