@@ -140,14 +140,15 @@ class Extract_Links:
                         dataToParse = f.read()
             
             # Extract links
-            retData = self.extract_links_from_string(dataToParse)
-            self.write_data_to_file(retData[0], retData[1])
+            retData = self.extractLinks(dataToParse)
+            if retData is None: raise ValueError('Wrong inputs')
+            self.saveToFile(retData[0], retData[1])
             
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...')
                 
         except Exception as e:
-            print(f'{Fore.RED}=> [Error 2] {e}, Try again...')
+            print(f'{Fore.RED}=> [Error] {e}, Try again...')
             
         else:
             # Open saved file
@@ -158,9 +159,9 @@ class Extract_Links:
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
-    def extract_links_from_string(self, dataToParse:str):
+    def extractLinks(self, dataToParse:str):
         """
-        This function extracts links from source location based on user choice
+        Returns: (`extracted-links`, `extracted-items-summary`)
         """
         def getLinks(regex:str) -> list[str] :
             return list(
@@ -170,39 +171,33 @@ class Extract_Links:
             )
         
         # Extracting links from file
-        web_links   = getLinks(r'(https?://[^("\s<>)]+)')               # http[s]://anything_until (' ', <, >)
-        ftp_list    = getLinks(r'(ftp://[^("\s<>)]+)')                  # ftp://anything_until (' ', <, >)
-        mail_links  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
+        webLinks   = getLinks(r'(https?://[^("\s<>)]+)')               # http[s]://anything_until (' ', <, >)
+        ftpLinks   = getLinks(r'(ftp://[^("\s<>)]+)')                  # ftp://anything_until (' ', <, >)
+        mailLinks  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
 
-        # User choice :: Links & Additional data
-        myDict :dict[str, tuple[str, list[str]]] = {
-            '1': ('◆ Web links:', web_links),            
-            '2': ('◆ FTP links:', ftp_list),            
-            '3': ('◆ Mail links:', mail_links),            
-            '4': ('◆ All Links:', web_links+ftp_list+mail_links),
-        }
-        
         # Extracted links
-        linksText = myDict[self.userChoice][0]
-        linksList = myDict[self.userChoice][1]
+        match self.userChoice:
+            case '1':   text, linksList = '◆ Web links:', webLinks
+            case '2':   text, linksList = '◆ FTP links:', ftpLinks
+            case '3':   text, linksList = '◆ Mail links:', mailLinks
+            case '4':   text, linksList = '◆ All links:', webLinks + ftpLinks + mailLinks
+            case _  :   text, linksList = None, None
         
-        # Additional data
-        summaryDict :dict[str, int] = {}
-        summaryDict.update({linksText: len(linksList)})
-        if self.userChoice == '4':
-            summaryDict.update({'        • Web links:'  : len(web_links)})
-            summaryDict.update({'        • FTP links:'  : len(ftp_list)})
-            summaryDict.update({'        • Mail links:' : len(mail_links)})
-        summaryDict.update({'◆ Words:': len(dataToParse.split(' '))})
-        summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
-        
-        return linksList, summaryDict
+        # Extraction summary
+        if text and linksList:
+            summaryDict = {text: len(linksList)}
+            if self.userChoice == '4':
+                summaryDict.update({'        • Web links:'  : len(webLinks)})
+                summaryDict.update({'        • FTP links:'  : len(ftpLinks)})
+                summaryDict.update({'        • Mail links:' : len(mailLinks)})
+            summaryDict.update({'◆ Words:': len(dataToParse.split(' '))})
+            summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
+            return linksList, summaryDict
 
-    def write_data_to_file(self, extractedLinks:list[str], summary:dict[str, int]):
+    def saveToFile(self, extractedLinks:list[str], summary:dict[str, int]):
         """
         Function to write extracted links to a new file
         """
-        
         with open(self.fileLocation, 'a+', encoding='utf-8') as f:
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
