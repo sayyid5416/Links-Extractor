@@ -259,33 +259,32 @@ class Extract_Links:
         Function to write extracted links to a new file
         """
         
-        with open(self.new_file_location, 'a+', encoding='utf-8') as f_new:
+        with open(self.new_file_location, 'a+', encoding='utf-8') as f:
             
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
-            f_new.writelines("•" * 84)
-            f_new.writelines(
+            f.write("•" * 84)
+            f.write(
                 f'\n● Links extracted from "{self.source_location}"\n'
                 f'● {currentTime}\n\n'
             )
             
             # Conclusion
-            conclusion = '\n'.join(
-                [f'{key} {val}' for key, val in self.additional_items_dict.items()]
-            )
-            f_new.writelines(f'{conclusion}\n\n')
+            conclusionData = [f'{a} {b}' for a, b in self.additional_items_dict.items()]
+            conclusion = '\n'.join(conclusionData + ['\n'])
+            f.write(conclusion)
             
             # Links
-            for num, link in enumerate(self.extracted_items_list, start=1):
-                print(f'{Fore.GREEN}{num} -- Extracted -- {link}')
-                f_new.writelines(f'    {num} - {link}\n')
+            for i, link in enumerate(self.extracted_items_list, start=1):
+                print(f'{Fore.GREEN}{i} -- Extracted -- {link}')
+                f.write(f'    {i} - {link}\n')
 
-            f_new.writelines("‾" * 100)
-            f_new.writelines('\n\n\n')
+            f.write("‾" * 100)
+            f.write('\n\n\n')
             
         # Print conclusion
         print(
-            f'{Fore.BLUE}{conclusion}\n'
+            f'{Fore.BLUE}{conclusion}'
             f'{Fore.YELLOW}=> Data saved to "{self.new_file_location}"'
         )
 
