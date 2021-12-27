@@ -162,30 +162,24 @@ class Extract_Links:
         Function to write extracted links to a new file
         """
         with open(fileLocation, 'a+', encoding='utf-8') as f:
-            # Heading
-            currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
-            f.write("•" * 84)
-            f.write(f'\n● Links extracted from "{self.sourcePath}"\n● {currentTime}\n\n')
-            
             # Summary
+            currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             summaryData = [f'{a} {b}' for a, b in summary.items()]
             summaryStr = '\n'.join(summaryData + ['\n'])
+            f.write("•" * 84)
+            f.write(f'\n● Links extracted from "{self.sourcePath}"\n● {currentTime}\n\n')
             f.write(summaryStr)
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 print(f'{Fore.GREEN}{i} -- Extracted -- {link}')
                 f.write(f'    {i} - {link}\n')
-
-            # Footer
-            f.write("‾" * 100)
-            f.write('\n\n\n')
+            f.writelines(['‾'*100, '\n\n\n'])
             
-        # Print summary
         print(
             f'{Fore.BLUE}{summaryStr}'
             f'{Fore.YELLOW}=> Data saved to "{fileLocation}"'
-        )
+        )   # Summary
 
     def show_about_data(self):
         print(
