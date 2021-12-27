@@ -163,12 +163,8 @@ class Extract_Links:
         """
         Returns: (`extracted-links`, `extracted-items-summary`)
         """
-        def getLinks(regex:str) -> list[str] :
-            return list(
-                set(
-                    re.findall(regex, dataToParse, re.IGNORECASE)
-                )
-            )
+        def getLinks(regex:str) -> set[str] :
+            return set(re.findall(regex, dataToParse, re.IGNORECASE))
         
         # Extracting links from file
         webLinks   = getLinks(r'(https?://[^("\s<>)]+)')               # http[s]://anything_until (' ', <, >)
@@ -180,7 +176,7 @@ class Extract_Links:
             case '1':   text, linksList = '◆ Web links:', webLinks
             case '2':   text, linksList = '◆ FTP links:', ftpLinks
             case '3':   text, linksList = '◆ Mail links:', mailLinks
-            case '4':   text, linksList = '◆ All links:', webLinks + ftpLinks + mailLinks
+            case '4':   text, linksList = '◆ All links:', webLinks.union(ftpLinks, mailLinks)
             case _  :   text, linksList = None, None
         
         # Extraction summary
@@ -194,7 +190,7 @@ class Extract_Links:
             summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
             return linksList, summaryDict
 
-    def saveToFile(self, extractedLinks:list[str], summary:dict[str, int]):
+    def saveToFile(self, extractedLinks:set[str], summary:dict[str, int]):
         """
         Function to write extracted links to a new file
         """
@@ -202,27 +198,25 @@ class Extract_Links:
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             f.write("•" * 84)
-            f.write(
-                f'\n● Links extracted from "{self.dataSource}"\n'
-                f'● {currentTime}\n\n'
-            )
+            f.write(f'\n● Links extracted from "{self.dataSource}"\n● {currentTime}\n\n')
             
-            # Conclusion
-            conclusionData = [f'{a} {b}' for a, b in summary.items()]
-            conclusion = '\n'.join(conclusionData + ['\n'])
-            f.write(conclusion)
+            # Summary
+            summaryData = [f'{a} {b}' for a, b in summary.items()]
+            summaryStr = '\n'.join(summaryData + ['\n'])
+            f.write(summaryStr)
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 print(f'{Fore.GREEN}{i} -- Extracted -- {link}')
                 f.write(f'    {i} - {link}\n')
 
+            # Footer
             f.write("‾" * 100)
             f.write('\n\n\n')
             
-        # Print conclusion
+        # Print summary
         print(
-            f'{Fore.BLUE}{conclusion}'
+            f'{Fore.BLUE}{summaryStr}'
             f'{Fore.YELLOW}=> Data saved to "{self.fileLocation}"'
         )
 
