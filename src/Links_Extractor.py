@@ -184,9 +184,10 @@ class Extract_Links:
             
         else:
             # Open saved extracted links file
-            General_Class.open_file(
-                file_to_open=self.new_file_location
-            )
+            threading.Thread(
+                target=lambda : os.system(f'""{self.new_file_location}""'),
+                daemon=True
+            ).start()
 
 
     def extract_links_from_string(self):
@@ -272,10 +273,11 @@ class Extract_Links:
         with open(self.new_file_location, 'a+', encoding='utf-8') as f_new:
             
             # Heading
+            currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             f_new.writelines("•" * 84)
             f_new.writelines(
                 f'\n● Links extracted from "{self.source_location}"\n'
-                f'● {General_Class.get_current_date_and_time()}\n\n'
+                f'● {currentTime}\n\n'
             )
             
             # Conclusion
@@ -320,51 +322,6 @@ class Extract_Links:
             print('[Skipped]')
 
 
-
-
-class General_Class:
-    """
-    This class contains general methods
-    """        
-
-    @staticmethod
-    def get_current_date_and_time():
-        """
-        Returns: string: customised date and time
-        """
-        # Current Date
-        months_list = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-        day_today = datetime.now().day
-        if day_today < 10:
-            day_today = f'0{day_today}'
-        current_date = f'{day_today}/{months_list[datetime.now().month - 1]}/{datetime.now().year}'
-        
-        # Current Time (12hr format)
-        hour = datetime.now().hour
-        minute = datetime.now().minute
-        time_stamp = 'am'                   # AM
-        if hour >= 12:                      # PM
-            time_stamp = 'pm'
-            if hour != 12:
-                hour = hour - 12
-        if minute < 10:
-            minute = f'0{minute}'
-        current_time = f'{hour}:{minute} {time_stamp}'
-        
-        return f'{current_date}   {current_time}'
-
-    @staticmethod
-    def open_file(file_to_open):
-        """
-        This function launches a file using subprocess module
-            - Threading is used to keep the app functional
-        """
-        
-        file_thread = threading.Thread(
-            target=lambda : os.system(f'""{file_to_open}""'),
-        )
-        file_thread.setDaemon(True)
-        file_thread.start()
     
     
 
