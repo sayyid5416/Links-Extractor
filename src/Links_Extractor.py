@@ -19,7 +19,7 @@ from colorama import Fore
 
 
 # Choices dict
-choiceDict = {
+choiceDict :dict[str, tuple[str, str]] = {
     '1': ('Web links', '(http/https)'),
     '2': ('FTP links', '(ftp)'),
     '3': ('MAIL links', '(mailto)'),
@@ -111,10 +111,7 @@ class Extract_Links:
         return x
 
     def get_filePath(self):
-        """
-        - RETURNS the file location of NEW FILE, for extracted links
-        - Creates parent folder - if missing
-        """
+        """ Returns: File location where extracted links would be saved """
         # File Name
         fileName = self.sourcePath
         for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
@@ -126,7 +123,7 @@ class Extract_Links:
         if not os.path.exists(dirPath):
             os.makedirs(dirPath)
             
-        # File location
+        # File path
         return os.path.join(dirPath, fileName)
     
     def get_extractedLinks(self, sourceData:str):
