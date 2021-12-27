@@ -62,24 +62,12 @@ class Extract_Links:
             
             # Main Action
             match self.userChoice:
-                case '6':   
-                    # App info
-                    self.show_about_data()
-                case _:
-                    # Aksing for source of data
-                    match self.userChoice:
-                        case '5':                                                                                       # Web
-                            quest = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
-                            self.dataSource = takeUserInput(quest, [('\\', '/')])
-                            if '://' not in self.dataSource:
-                                self.dataSource = 'https://' + self.dataSource
-                        case _:                                                                                         # Local-file
-                            quest = 'Enter file name to extract links from it (relative/absolute path)'
-                            self.dataSource = takeUserInput(quest, [('/', '\\')])
+                case '6':   self.show_about_data()
+                case _:     self.main_extracting_fctn()
+                    
+        except FileNotFoundError:
+            print(f'{Fore.RED}=> [Error] Data source not found. Write proper file name...')
                 
-                    # Final Extraction
-                    self.main_extracting_fctn()
-        
         except Exception as e:
             print(f'{Fore.RED}=> [Error] {e}, Try again...')
     
@@ -104,37 +92,32 @@ class Extract_Links:
         return choice
     
     def main_extracting_fctn(self):
-        self.fileLocation = self.get_filePath()
-        try:
-            # Getting data from source location
-            if self.userChoice == '5':
-                dataToParse = requests.get(self.dataSource).text                    # From Webpage
-                self.userChoice = '4'
-            else:                                                                   # From local file
+        """ Main Links extraction """
+        # Ask for source location -> Get its data
+        match self.userChoice:
+            case '5':                                                                                       # Web
+                quest = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
+                self.dataSource = takeUserInput(quest, [('\\', '/')])
+                if '://' not in self.dataSource:
+                    self.dataSource = 'https://' + self.dataSource
+                dataToParse = requests.get(self.dataSource).text
+                self.userChoice = '4'                                     #to get all links from webpage
+            case _:                                                                                         # Local-file
+                quest = 'Enter file name to extract links from it (relative/absolute path)'
+                self.dataSource = takeUserInput(quest, [('/', '\\')])
                 try:
-                    with open(self.dataSource, encoding='utf-8') as f:
-                        dataToParse = f.read()
-                except Exception as e:
-                    with open(self.dataSource) as f:
-                        dataToParse = f.read()
-            
-            # Extract links
-            retData = self.extractLinks(dataToParse)
-            if retData is None: raise ValueError('Wrong inputs')
-            self.saveToFile(retData[0], retData[1])
-            
-        except FileNotFoundError:
-            print(f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...')
-                
-        except Exception as e:
-            print(f'{Fore.RED}=> [Error] {e}, Try again...')
-            
-        else:
-            # Open saved file
-            threading.Thread(
-                target=lambda: os.system(f'""{self.fileLocation}""'),
-                daemon=True
-            ).start()
+                    with open(self.dataSource, encoding='utf-8') as f:  dataToParse = f.read()
+                except Exception:
+                    with open(self.dataSource) as f:                    dataToParse = f.read()
+        
+        # Extract links
+        retData = self.extractLinks(dataToParse)
+        if retData is None: raise ValueError('Wrong inputs')
+        
+        # Save data -> open saved file
+        fileLocation = self.get_filePath()
+        self.saveToFile(fileLocation, retData[0], retData[1])
+        threading.Thread(target=lambda: os.system(f'""{fileLocation}""'), daemon=True).start()
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
@@ -188,11 +171,11 @@ class Extract_Links:
             summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
             return linksList, summaryDict
 
-    def saveToFile(self, extractedLinks:set[str], summary:dict[str, int]):
+    def saveToFile(self, fileLocation, extractedLinks:set[str], summary:dict[str, int]):
         """
         Function to write extracted links to a new file
         """
-        with open(self.fileLocation, 'a+', encoding='utf-8') as f:
+        with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Heading
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             f.write("•" * 84)
@@ -215,7 +198,7 @@ class Extract_Links:
         # Print summary
         print(
             f'{Fore.BLUE}{summaryStr}'
-            f'{Fore.YELLOW}=> Data saved to "{self.fileLocation}"'
+            f'{Fore.YELLOW}=> Data saved to "{fileLocation}"'
         )
 
     def show_about_data(self):
