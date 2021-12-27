@@ -1,3 +1,4 @@
 winshell
+pywin32
 colorama
 requests
