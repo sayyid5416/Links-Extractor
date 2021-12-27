@@ -140,8 +140,8 @@ class Extract_Links:
                         dataToParse = f.read()
             
             # Extract links
-            self.extract_links_from_string(dataToParse)                     # Extract links
-            self.write_data_to_file()                                       # Write links to a file
+            retData = self.extract_links_from_string(dataToParse)                     # Extract links
+            self.write_data_to_file(retData[0], retData[1])                                       # Write links to a file
             
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...')
@@ -208,31 +208,30 @@ class Extract_Links:
         }
         
         # Links to extract
-        self.extracted_items_list = user_choice_dict[self.userChoice][1]
+        linksText = user_choice_dict[self.userChoice][0]
+        linksList = user_choice_dict[self.userChoice][1]
         
         # Additional data
-        self.additional_items_dict = {}
-        self.additional_items_dict.update(
-            {
-                user_choice_dict[self.userChoice][0]: len(user_choice_dict[self.userChoice][1])
-            }
-        )
+        summaryDict :dict[str, int] = {}
+        summaryDict.update({linksText: len(linksList)})
         if self.userChoice == '4':
-            self.additional_items_dict.update(
+            summaryDict.update(
                 {
                     '        • Web links:': len(web_links),
                     '        • FTP links:': len(ftp_list),
                     '        • Mail links:': len(mail_links)
                 }
             )
-        self.additional_items_dict.update(
+        summaryDict.update(
             {
                 '◆ Words:': len(dataToParse.split(' ')),
                 '◆ Lines:': len(dataToParse.split('\n'))
             }
         )
+        
+        return linksList, summaryDict
 
-    def write_data_to_file(self):
+    def write_data_to_file(self, extractedLinks:list[str], summary:dict[str, int]):
         """
         Function to write extracted links to a new file
         """
@@ -248,12 +247,12 @@ class Extract_Links:
             )
             
             # Conclusion
-            conclusionData = [f'{a} {b}' for a, b in self.additional_items_dict.items()]
+            conclusionData = [f'{a} {b}' for a, b in summary.items()]
             conclusion = '\n'.join(conclusionData + ['\n'])
             f.write(conclusion)
             
             # Links
-            for i, link in enumerate(self.extracted_items_list, start=1):
+            for i, link in enumerate(extractedLinks, start=1):
                 print(f'{Fore.GREEN}{i} -- Extracted -- {link}')
                 f.write(f'    {i} - {link}\n')
 
