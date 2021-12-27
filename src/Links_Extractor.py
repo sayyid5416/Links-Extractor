@@ -18,21 +18,16 @@ from colorama import Fore
 
 
 
-def take_user_input(question_text:str, replace_tuple_list=[]):
+def take_user_input(question:str, replaceList=[]):
     """
     This function asks user input and returns the modified text
     """    
     
-    x = input(
-        f'{Fore.WHITE}> {question_text}: {Fore.LIGHTBLUE_EX}'
-    )
+    x = input(f'{Fore.WHITE}> {question}: {Fore.LIGHTBLUE_EX}')
     
-    if replace_tuple_list != []:
-        for rep_tuple in replace_tuple_list:
-            x.replace(
-                rep_tuple[0],
-                rep_tuple[1]
-            )
+    if replaceList:
+        for i in replaceList:
+            x = x.replace(i[0], i[1])
 
     return x
 
@@ -69,10 +64,7 @@ class Extract_Links:
                 self.webcrawl = True
                 
             # Old location user input
-            self.source_location = take_user_input(
-                question_text=ques,
-                replace_tuple_list=rep_list
-            )
+            self.source_location = take_user_input(ques, rep_list)
             if self.webcrawl:
                 if '://' not in self.source_location:
                     self.source_location = f'https://{self.source_location}'        # Add https://, if not present
@@ -85,11 +77,8 @@ class Extract_Links:
         
         except ZeroDivisionError:                                   # [False Error] For user initiated errors
             pass
-            
         except Exception as e:
-            print(
-                f'{Fore.RED}=> [Error 1] {e}, Try again...'
-            )
+            print(f'{Fore.RED}=> [Error 1] {e}, Try again...')
     
     
     def get_extracted_file_location(self, choices_dict):
