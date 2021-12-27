@@ -27,34 +27,16 @@ choiceDict = {
     '5': ('Web-Crawl', '(all links)'),
     '6': ('About', '')
 }
-
-
-def takeUserInput(question:str, replaceList=[], web:bool=False):
-    """ Asks user input & Returns: modified text """    
-    
-    x = input(f'{Fore.WHITE}> {question}: {Fore.LIGHTBLUE_EX}')
-    
-    if replaceList:
-        for i in replaceList:
-            x = x.replace(i[0], i[1])
-    
-    if web and '://' not in x:
-        x = 'https://' + x
-
-    return x
-
-
+choicesText = ''
+for a, b in choiceDict.items():
+    choicesText += f' {a} - {b[0]} {b[1]}\n'
 
 
 
 class Extract_Links:
-    """
-    Main Links Extraction class
-    """    
 
     def __init__(self):
         super().__init__()
-        
         try:
             # User choices
             print(Fore.WHITE, end='')
@@ -77,17 +59,14 @@ class Extract_Links:
         This function shows user the choices and returns dict and the user choice
         """
         # Printing choices
-        choices = ''
-        for a, b in choiceDict.items():
-            choices += f' {a} - {b[0]} {b[1]}\n'
         print(app_name.center(os.get_terminal_size().columns))
-        print(choices)
+        print(choicesText)
         
         # Asking for user choice
         question = f'Enter your choice ({"/".join(choiceDict)})'
-        choice = takeUserInput(question)
+        choice = self.takeUserInput(question)
         while choice not in choiceDict:
-            choice = takeUserInput(question)
+            choice = self.takeUserInput(question)
         print()
         
         return choice
@@ -97,10 +76,10 @@ class Extract_Links:
         # Ask for source location -> Get its data
         match self.userChoice:
             case '5':                                                                                       # Web
-                self.sourcePath = takeUserInput('Enter web-address (Ex: github.com/hussain5416)', [('\\', '/')], web=True)
+                self.sourcePath = self.takeUserInput('Enter web-address (Ex: github.com/hussain5416)', [('\\', '/')], web=True)
                 sourceData = requests.get(self.sourcePath).text
             case _:                                                                                         # Local-file
-                self.sourcePath = takeUserInput('Enter relative/absolute file-path', [('/', '\\')])
+                self.sourcePath = self.takeUserInput('Enter relative/absolute file-path', [('/', '\\')])
                 try:
                     with open(self.sourcePath, encoding='utf-8') as f:  sourceData = f.read()
                 except Exception:
@@ -116,6 +95,21 @@ class Extract_Links:
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
+    @staticmethod
+    def takeUserInput(question:str, replaceList=[], web:bool=False):
+        """ Asks user input & Returns: modified text """    
+        # Input
+        x = input(f'{Fore.WHITE}> {question}: {Fore.LIGHTBLUE_EX}')
+        
+        # Modifications
+        if replaceList:
+            for i in replaceList:
+                x = x.replace(i[0], i[1])
+        if web and '://' not in x:
+            x = 'https://' + x
+
+        return x
+
     def get_filePath(self):
         """
         - RETURNS the file location of NEW FILE, for extracted links
@@ -203,7 +197,7 @@ class Extract_Links:
             "Creator: Hussain Abbas\n" \
             f"App Webpage: {github_link}\n"
         )
-        update_check = takeUserInput('Check for updates? (y/n) ')
+        update_check = self.takeUserInput('Check for updates? (y/n) ')
         print(f'{Fore.GREEN}', end='')
         if update_check.lower() in ['y', 'yes']:
             threading.Thread(
@@ -217,8 +211,7 @@ class Extract_Links:
             print('[Skipped]')
 
 
-    
-    
+
 
 
 ############################################################################################## Run Main Program
