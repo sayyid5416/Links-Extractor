@@ -161,73 +161,40 @@ class Extract_Links:
     def extract_links_from_string(self, dataToParse:str):
         """
         This function extracts links from source location based on user choice
-        """            
-        
-        # Extracting links from file
-        def extract_links_proper(regex_string:str) -> list[str] :
-            """
-            This function returns a 'LIST' of matching items, based on the passed 'REG-EX'
-            """
+        """
+        def getLinks(regex:str) -> list[str] :
             return list(
                 set(
-                    re.findall(regex_string, dataToParse, re.IGNORECASE)
+                    re.findall(regex, dataToParse, re.IGNORECASE)
                 )
             )
         
-        web_links = extract_links_proper(
-            r'(https?://[^("\s<>)]+)'                    # http[s]://anything_until (' ', <, >)
-        )
-        ftp_list = extract_links_proper(
-            r'(ftp://[^("\s<>)]+)'                       # ftp://anything_until (' ', <, >)
-        )
-        mail_links = extract_links_proper(
-            r'(mailto: *[^("\s<>)]+)',                   # mailto:[whitespaces]anything_until (' ', <, >)
-        )
+        # Extracting links from file
+        web_links   = getLinks(r'(https?://[^("\s<>)]+)')               # http[s]://anything_until (' ', <, >)
+        ftp_list    = getLinks(r'(ftp://[^("\s<>)]+)')                  # ftp://anything_until (' ', <, >)
+        mail_links  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
 
         # User choice :: Links & Additional data
-        user_choice_dict :dict[str, tuple[str, list[str]]] = {
-            '1': (
-                '◆ Web links:',
-                web_links
-            ),
-            
-            '2': (
-                '◆ FTP links:',
-                ftp_list
-            ),
-            
-            '3': (
-                '◆ Mail links:',
-                mail_links
-            ),
-            
-            '4': (
-                '◆ All Links:',
-                web_links + ftp_list + mail_links
-            ),
+        myDict :dict[str, tuple[str, list[str]]] = {
+            '1': ('◆ Web links:', web_links),            
+            '2': ('◆ FTP links:', ftp_list),            
+            '3': ('◆ Mail links:', mail_links),            
+            '4': ('◆ All Links:', web_links+ftp_list+mail_links),
         }
         
-        # Links to extract
-        linksText = user_choice_dict[self.userChoice][0]
-        linksList = user_choice_dict[self.userChoice][1]
+        # Extracted links
+        linksText = myDict[self.userChoice][0]
+        linksList = myDict[self.userChoice][1]
         
         # Additional data
         summaryDict :dict[str, int] = {}
         summaryDict.update({linksText: len(linksList)})
         if self.userChoice == '4':
-            summaryDict.update(
-                {
-                    '        • Web links:': len(web_links),
-                    '        • FTP links:': len(ftp_list),
-                    '        • Mail links:': len(mail_links)
-                }
-            )
-        summaryDict.update(
-            {
-                '◆ Words:': len(dataToParse.split(' ')),
-                '◆ Lines:': len(dataToParse.split('\n'))
-            }
-        )
+            summaryDict.update({'        • Web links:'  : len(web_links)})
+            summaryDict.update({'        • FTP links:'  : len(ftp_list)})
+            summaryDict.update({'        • Mail links:' : len(mail_links)})
+        summaryDict.update({'◆ Words:': len(dataToParse.split(' '))})
+        summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
         
         return linksList, summaryDict
 
