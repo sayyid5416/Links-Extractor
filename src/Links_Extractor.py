@@ -57,13 +57,13 @@ class Extract_Links:
         try:
             # User choices
             print(Fore.WHITE, end='')
-            self.userChoice = self.asks_user_choice()
+            self.userChoice = self.getUserChoice()
             print(f'{Fore.RESET}', end='')
             
             # Main Action
             match self.userChoice:
                 case '6':   self.show_about_data()
-                case _:     self.main_extracting_fctn()
+                case _:     self.mainExtraction()
                     
         except FileNotFoundError:
             print(f'{Fore.RED}=> [Error] Data source not found. Write proper file name...')
@@ -71,7 +71,7 @@ class Extract_Links:
         except Exception as e:
             print(f'{Fore.RED}=> [Error] {e}, Try again...')
     
-    def asks_user_choice(self):
+    def getUserChoice(self):
         """
         This function shows user the choices and returns dict and the user choice
         """
@@ -91,7 +91,7 @@ class Extract_Links:
         
         return choice
     
-    def main_extracting_fctn(self):
+    def mainExtraction(self):
         """ Main Links extraction """
         # Ask for source location -> Get its data
         match self.userChoice:
