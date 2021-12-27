@@ -53,7 +53,6 @@ class Extract_Links:
 
     def __init__(self):
         super().__init__()
-        self.webcrawl = False
         
         try:
             # User choices
@@ -68,18 +67,17 @@ class Extract_Links:
                 if self.userChoice == '5':
                     ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
                     rep_list = [('\\', '/')]
-                    self.webcrawl = True
                 else:
                     ques = 'Enter file name to extract links from it (relative/absolute path)'
                     rep_list = [('/', '\\')]
                     
                 # Old location user input
                 self.dataSource = takeUserInput(ques, rep_list)
-                if self.webcrawl:
+                if self.userChoice == '5':
                     if '://' not in self.dataSource:
                         self.dataSource = f'https://{self.dataSource}'
                 
-                # 
+                # Final
                 self.fileLocation = self.get_filePath()
                 self.main_extracting_fctn()
         
@@ -128,7 +126,7 @@ class Extract_Links:
     def main_extracting_fctn(self):
         try:
             # Getting data from source location
-            if self.webcrawl:
+            if self.userChoice == '5':
                 dataToParse = requests.get(self.dataSource).text                    # From Webpage
                 self.userChoice = '4'
             else:                                                                   # From local file
