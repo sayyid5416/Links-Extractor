@@ -126,43 +126,39 @@ class Extract_Links:
         return os.path.join(dirPath, fileName)
     
     def main_extracting_fctn(self):
-        
         try:
-            ## Getting data from source location
+            # Getting data from source location
             if self.webcrawl:
-                self.data_to_parse = requests.get(
-                    self.dataSource
-                ).text                                                              # Source code of webpage
+                dataToParse = requests.get(self.dataSource).text                    # Source code of webpage
                 self.userChoice = '4'                                                      # for extracting all links
             else:                                                                   # Data from file
                 try:                                                                        # solve encoding issues
                     with open(self.dataSource, encoding='utf-8') as f:
-                        self.data_to_parse = f.read()
-                except:
+                        dataToParse = f.read()
+                except Exception as e:
                     with open(self.dataSource) as f:
-                        self.data_to_parse = f.read()
-                        
-            self.extract_links_from_string()                    # Extract links
-            self.write_data_to_file()                           # Write links to a file
+                        dataToParse = f.read()
+            
+            # Extract links
+            self.extract_links_from_string(dataToParse)                     # Extract links
+            self.write_data_to_file()                                       # Write links to a file
             
         except FileNotFoundError:
-            print(
-                f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...'
-            )
+            print(f'{Fore.RED}=> [Error] "{self.dataSource}" not found. Write the proper file name...')
                 
         except Exception as e:
-            print(
-                f'{Fore.RED}=> [Error 2] {e}, Try again...'
-            )
+            print(f'{Fore.RED}=> [Error 2] {e}, Try again...')
             
         else:
-            # Open saved extracted links file
+            # Open saved file
             threading.Thread(
-                target=lambda : os.system(f'""{self.fileLocation}""'),
+                target=lambda: os.system(f'""{self.fileLocation}""'),
                 daemon=True
             ).start()
 
-    def extract_links_from_string(self):
+
+    ## -------------------------------------------- Others -------------------------------------------- ##
+    def extract_links_from_string(self, dataToParse:str):
         """
         This function extracts links from source location based on user choice
         """            
@@ -174,7 +170,7 @@ class Extract_Links:
             """
             return list(
                 set(
-                    re.findall(regex_string, self.data_to_parse, re.IGNORECASE)
+                    re.findall(regex_string, dataToParse, re.IGNORECASE)
                 )
             )
         
@@ -231,8 +227,8 @@ class Extract_Links:
             )
         self.additional_items_dict.update(
             {
-                '◆ Words:': len(self.data_to_parse.split(' ')),
-                '◆ Lines:': len(self.data_to_parse.split('\n'))
+                '◆ Words:': len(dataToParse.split(' ')),
+                '◆ Lines:': len(dataToParse.split('\n'))
             }
         )
 
