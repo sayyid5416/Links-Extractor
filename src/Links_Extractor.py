@@ -60,29 +60,28 @@ class Extract_Links:
             self.userChoice = self.asks_user_choice()
             print(f'{Fore.RESET}', end='')
             
-            if self.userChoice == '6':
-                self.show_about_data()
-            else:
-                # Web Crawling | Local file Crawling
-                if self.userChoice == '5':
-                    ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
-                    rep_list = [('\\', '/')]
-                else:
-                    ques = 'Enter file name to extract links from it (relative/absolute path)'
-                    rep_list = [('/', '\\')]
-                    
-                # Old location user input
-                self.dataSource = takeUserInput(ques, rep_list)
-                if self.userChoice == '5':
-                    if '://' not in self.dataSource:
-                        self.dataSource = f'https://{self.dataSource}'
+            # Main Action
+            match self.userChoice:
+                case '6':   
+                    # App info
+                    self.show_about_data()
+                case _:
+                    # Aksing for source of data
+                    match self.userChoice:
+                        case '5':                                                                                       # Web
+                            quest = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
+                            self.dataSource = takeUserInput(quest, [('\\', '/')])
+                            if '://' not in self.dataSource:
+                                self.dataSource = 'https://' + self.dataSource
+                        case _:                                                                                         # Local-file
+                            quest = 'Enter file name to extract links from it (relative/absolute path)'
+                            self.dataSource = takeUserInput(quest, [('/', '\\')])
                 
-                # Final
-                self.fileLocation = self.get_filePath()
-                self.main_extracting_fctn()
+                    # Final Extraction
+                    self.main_extracting_fctn()
         
         except Exception as e:
-            print(f'{Fore.RED}=> [Error 1] {e}, Try again...')
+            print(f'{Fore.RED}=> [Error] {e}, Try again...')
     
     def asks_user_choice(self):
         """
@@ -104,26 +103,8 @@ class Extract_Links:
         
         return choice
     
-    def get_filePath(self):
-        """
-        - RETURNS the file location of NEW FILE, for extracted links
-        - Creates parent folder - if missing
-        """
-        # File Name
-        fileName = self.dataSource
-        for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
-            fileName = fileName.replace(i, '-')
-        fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
-        
-        # Parent directory
-        dirPath = os.path.join(winshell.desktop(), 'Extracted Links')
-        if not os.path.exists(dirPath):
-            os.makedirs(dirPath)
-            
-        # File location
-        return os.path.join(dirPath, fileName)
-    
     def main_extracting_fctn(self):
+        self.fileLocation = self.get_filePath()
         try:
             # Getting data from source location
             if self.userChoice == '5':
@@ -157,6 +138,25 @@ class Extract_Links:
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
+    def get_filePath(self):
+        """
+        - RETURNS the file location of NEW FILE, for extracted links
+        - Creates parent folder - if missing
+        """
+        # File Name
+        fileName = self.dataSource
+        for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
+            fileName = fileName.replace(i, '-')
+        fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
+        
+        # Parent directory
+        dirPath = os.path.join(winshell.desktop(), 'Extracted Links')
+        if not os.path.exists(dirPath):
+            os.makedirs(dirPath)
+            
+        # File location
+        return os.path.join(dirPath, fileName)
+    
     def extractLinks(self, dataToParse:str):
         """
         Returns: (`extracted-links`, `extracted-items-summary`)
