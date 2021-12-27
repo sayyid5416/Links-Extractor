@@ -64,26 +64,23 @@ class Extract_Links:
             if self.userChoice == '6':
                 self.show_about_data()
             else:
-                # Local file Crawling
-                ques = 'Enter file name to extract links from it (relative/absolute path)'
-                rep_list = [('/', '\\')]
-                
-                # Web Crawling
+                # Web Crawling | Local file Crawling
                 if self.userChoice == '5':
                     ques = 'Enter WEB-Page address to extract links from it (Ex: github.com/hussain5416)'
                     rep_list = [('\\', '/')]
                     self.webcrawl = True
+                else:
+                    ques = 'Enter file name to extract links from it (relative/absolute path)'
+                    rep_list = [('/', '\\')]
                     
                 # Old location user input
                 self.dataSource = takeUserInput(ques, rep_list)
                 if self.webcrawl:
                     if '://' not in self.dataSource:
-                        self.dataSource = f'https://{self.dataSource}'        # Add https://, if not present
+                        self.dataSource = f'https://{self.dataSource}'
                 
-                # NEW FILE - for extracted links
-                self.fileLocation = self.get_extracted_file_location(choiceDict)
-                    
-                ## Main links extraction function
+                # 
+                self.fileLocation = self.get_filePath()
                 self.main_extracting_fctn()
         
         except Exception as e:
@@ -109,33 +106,24 @@ class Extract_Links:
         
         return choice
     
-    def get_extracted_file_location(self, choices_dict):
+    def get_filePath(self):
         """
         - RETURNS the file location of NEW FILE, for extracted links
         - Creates parent folder - if missing
-        """        
-        
-        # New File Name
-        file_name = self.dataSource
+        """
+        # File Name
+        fileName = self.dataSource
         for i in ['\\', '/', ':', '*', '?', '"', '<', '>', '|']:
-            file_name = file_name.replace(i, '-')
-        new_f_name = f'{choices_dict[self.userChoice][0]} - {file_name}.txt'
+            fileName = fileName.replace(i, '-')
+        fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
         
-        # Parent Folder location
-        new_folder_location = os.path.join(
-            winshell.desktop(),
-            'Extracted Links'
-        )
-        if not os.path.exists(new_folder_location):
-            os.makedirs(new_folder_location)
+        # Parent directory
+        dirPath = os.path.join(winshell.desktop(), 'Extracted Links')
+        if not os.path.exists(dirPath):
+            os.makedirs(dirPath)
             
-        # New File location
-        new_file_loctn = os.path.join(
-            new_folder_location,
-            new_f_name
-        )
-        
-        return new_file_loctn
+        # File location
+        return os.path.join(dirPath, fileName)
     
     def main_extracting_fctn(self):
         
