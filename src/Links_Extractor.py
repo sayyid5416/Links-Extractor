@@ -107,9 +107,7 @@ class Extract_Links:
                     with open(self.dataSource) as f:                    dataToParse = f.read()
         
         # Extract links
-        retData = self.extractLinks(dataToParse)
-        if retData is None: 
-            raise ValueError('Wrong inputs')
+        retData = self.get_extractedLinks(dataToParse)
         
         # Save data -> open saved file
         fileLocation = self.get_filePath()
@@ -137,9 +135,9 @@ class Extract_Links:
         # File location
         return os.path.join(dirPath, fileName)
     
-    def extractLinks(self, dataToParse:str):
+    def get_extractedLinks(self, dataToParse:str):
         """
-        Returns: (`extracted-links`, `extracted-items-summary`)
+        Returns: (`extracted-links`, `extraction-summary`)
         """
         def getLinks(regex:str) -> set[str] :
             return set(re.findall(regex, dataToParse, re.IGNORECASE))
@@ -156,18 +154,17 @@ class Extract_Links:
             case '2':   text, linksList = '◆ FTP links:', ftpLinks
             case '3':   text, linksList = '◆ Mail links:', mailLinks
             case '4':   text, linksList = '◆ All links:', webLinks.union(ftpLinks, mailLinks)
-            case _  :   text, linksList = None, None
+            case _  :   raise ValueError('Wrong inputs')
         
         # Extraction summary
-        if text and linksList:
-            summaryDict = {text: len(linksList)}
-            if self.userChoice == '4':
-                summaryDict.update({'        • Web links:'  : len(webLinks)})
-                summaryDict.update({'        • FTP links:'  : len(ftpLinks)})
-                summaryDict.update({'        • Mail links:' : len(mailLinks)})
-            summaryDict.update({'◆ Words:': len(dataToParse.split(' '))})
-            summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
-            return linksList, summaryDict
+        summaryDict = {text: len(linksList)}
+        if self.userChoice == '4':
+            summaryDict.update({'        • Web links:'  : len(webLinks)})
+            summaryDict.update({'        • FTP links:'  : len(ftpLinks)})
+            summaryDict.update({'        • Mail links:' : len(mailLinks)})
+        summaryDict.update({'◆ Words:': len(dataToParse.split(' '))})
+        summaryDict.update({'◆ Lines:': len(dataToParse.split('\n'))})
+        return linksList, summaryDict
 
     def saveToFile(self, fileLocation, extractedLinks:set[str], summary:dict[str, int]):
         """
