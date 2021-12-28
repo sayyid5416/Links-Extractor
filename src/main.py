@@ -12,7 +12,7 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests, winshell, webbrowser, time
+import re, threading, requests, winshell, webbrowser, time, sys
 from datetime import datetime
 from colorama import Fore
 
@@ -41,17 +41,20 @@ class Extract_Links:
             # User choices
             print(Fore.WHITE, end='')
             self.userChoice = self.getUserChoice()
-            print(f'{Fore.RESET}', end='')
+            print(Fore.RESET, end='')
             
             # Main Action
             match self.userChoice:
                 case '6':   self.show_about_data()
                 case _:     self.mainExtraction()
         
-        except FileNotFoundError:
+        except KeyboardInterrupt:
+            print(Fore.GREEN, '[Exit]')
+            print(Fore.RESET)
+            sys.exit()
+        except FileNotFoundError:   
             print(f'{Fore.RED}=> [Error] Source not found. Write proper file name...')
-                
-        except Exception as e:
+        except Exception as e:      
             print(f'{Fore.RED}=> [Error] {e}, Try again...')
     
     def getUserChoice(self):
@@ -172,7 +175,9 @@ class Extract_Links:
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
-                print(f'{Fore.GREEN}{i} -- Extracted -- {link}')
+                threading.Thread(
+                    target=print, args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
+                ).start()
                 f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
             
@@ -187,6 +192,7 @@ class Extract_Links:
             "App Name: Links Extractor\n" \
             "Creator: Hussain Abbas\n" \
             f"App Webpage: {github_link}\n"
+            "Press <ctrl+c> any time to exit the app\n"
         )
         update_check = self.takeUserInput('Check for updates? (y/n) ')
         print(f'{Fore.GREEN}', end='')
