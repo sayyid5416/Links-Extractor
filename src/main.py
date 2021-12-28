@@ -172,7 +172,9 @@ class Extract_Links:
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
-                print(f'{Fore.GREEN}{i} -- Extracted -- {link}')
+                threading.Thread(
+                    target=print, args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
+                ).start()
                 f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
             
