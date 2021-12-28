@@ -1,4 +1,5 @@
 # Extract Links
+[![Pyinstaller](https://github.com/hussain5416/Links-Extractor/actions/workflows/pyinstaller.yml/badge.svg)](https://github.com/hussain5416/Links-Extractor/actions/workflows/pyinstaller.yml)
 
 From files on your PC             |  From any website
 :-------------------------:|:-------------------------:
