@@ -2,7 +2,7 @@
 import os
 
 app_name = 'Links Extractor'
-github_link = 'https://github.com/hussain5416/Links-Extractor'
+github_link = 'https://github.com/sayyid5416/Links-Extractor'
 
 
 # Console properties
@@ -79,7 +79,7 @@ class Extract_Links:
         # Ask for source location -> Get its data
         match self.userChoice:
             case '5':                                                                                       # Web
-                self.sourcePath = self.takeUserInput('Enter web-address (Ex: github.com/hussain5416)', [('\\', '/')], web=True)
+                self.sourcePath = self.takeUserInput('Enter web-address (Ex: github.com/sayyid5416)', [('\\', '/')], web=True)
                 sourceData = requests.get(self.sourcePath).text
             case _:                                                                                         # Local-file
                 self.sourcePath = self.takeUserInput('Enter relative/absolute file-path', [('/', '\\')])
