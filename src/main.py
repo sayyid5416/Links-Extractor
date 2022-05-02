@@ -15,6 +15,7 @@ if __name__ == "__main__":
 import re, threading, requests, winshell, webbrowser, time, sys
 from datetime import datetime
 from colorama import Fore
+from typing import Callable
 
 
 
@@ -33,21 +34,11 @@ for a, b in choiceDict.items():
 
 
 
-class Extract_Links:
-
-    def __init__(self):
-        super().__init__()
-        try:
-            # User choices
-            print(Fore.WHITE, end='')
-            self.userChoice = self.getUserChoice()
-            print(Fore.RESET, end='')
-            
-            # Main Action
-            match self.userChoice:
-                case '6':   self.show_about_data()
-                case _:     self.mainExtraction()
-        
+def D_error_catcher(func:Callable):
+    """ Decorator to catch errors """
+    def wrapper(*args, **kwargs):
+        try:        
+            return func(*args, **kwargs)
         except KeyboardInterrupt:
             print(Fore.GREEN, '[Exit]')
             print(Fore.RESET)
@@ -56,11 +47,28 @@ class Extract_Links:
             print(f'{Fore.RED}=> [Error] Source not found. Write proper file name...')
         except Exception as e:      
             print(f'{Fore.RED}=> [Error] {e}, Try again...')
+    return wrapper
+
+
+
+
+class Extract_Links:
+
+    @D_error_catcher
+    def __init__(self):
+        # User choices
+        print(Fore.WHITE, end='')
+        self.userChoice = self.getUserChoice()
+        print(Fore.RESET, end='')
+        
+        # Main Action
+        match self.userChoice:
+            case '6':   self.show_about_data()
+            case _:     self.mainExtraction()
+    
     
     def getUserChoice(self):
-        """
-        This function shows user the choices and returns dict and the user choice
-        """
+        """ Show user the choices and returns dict and the user choice """
         # Printing choices
         print(app_name.center(os.get_terminal_size().columns))
         print(choicesText)
@@ -73,6 +81,7 @@ class Extract_Links:
         print()
         
         return choice
+    
     
     def mainExtraction(self):
         """ Main Links extraction """
