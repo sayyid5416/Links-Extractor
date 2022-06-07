@@ -26,6 +26,6 @@ From files on your PC             |  From any website
 
 
 # Developer
-- Hussain Abbas
+- [Sayyid](https://github.com/sayyid5416)
 - [Contact on telegram](https://t.me/sayyid5416)
-- [GitHub Repo](https://github.com/sayyid5416/Extract_Links)
+- [GitHub Repo](https://github.com/sayyid5416/Links-Extractor)
