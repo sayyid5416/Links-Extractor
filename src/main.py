@@ -202,21 +202,26 @@ class Extract_Links:
         """
         Function to write extracted links to a new file
         """
+        rawEnabled = bool(get_current_settings() == RAW)
         with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Summary
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             summaryData = [f'{a} {b}' for a, b in summary.items()]
             summaryStr = '\n'.join(summaryData + ['\n'])
             f.write("•" * 84)
+            if rawEnabled: 
+                f.write("\n----- RAW FORMAT -----")
             f.write(f'\n● Links extracted from "{self.sourcePath}"\n● {currentTime}\n\n')
             f.write(summaryStr)
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 threading.Thread(
-                    target=print, args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
+                    target=print, 
+                    args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
                 ).start()
-                f.write(f'    {i} - {link}\n')
+                if rawEnabled:  f.write(f'{link}\n')
+                else:           f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
             
         print(
