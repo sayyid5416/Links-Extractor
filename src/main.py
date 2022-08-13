@@ -19,6 +19,25 @@ from typing import Callable
 
 
 
+# Settings
+config = 'config-file'
+RAW, ORIGINAL = 'ENABLED', 'DISABLED'
+
+def set_settings(setting=''):
+    if not os.path.exists(config):
+        setting = ORIGINAL
+    if setting:
+        with open(config, 'w') as f:
+            f.write(setting)
+            return True
+    return False
+
+def get_current_settings() -> str :
+    set_settings()
+    with open(config, 'r') as f:
+        return f.read()
+
+
 # Choices dict
 choiceDict :dict[str, tuple[str, str]] = {
     '1': ('Web links', '(http/https)'),
@@ -26,7 +45,8 @@ choiceDict :dict[str, tuple[str, str]] = {
     '3': ('MAIL links', '(mailto)'),
     '4': ('All types of links', ''),
     '5': ('Web-Crawl', '(all links)'),
-    '6': ('About', '')
+    '6': ('About', ''),
+    'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
 }
 choicesText = ''
 for a, b in choiceDict.items():
