@@ -37,6 +37,12 @@ def get_current_settings() -> str :
     with open(config, 'r') as f:
         return f.read()
 
+def switch_raw_setting():
+    """ Enable / Disable raw settings """
+    newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
+    set_settings(newVal)
+    print(f'{Fore.BLUE}=> Raw formatting {newVal}')
+
 
 # Choices dict
 choiceDict :dict[str, tuple[str, str]] = {
@@ -84,6 +90,7 @@ class Extract_Links:
         # Main Action
         match self.userChoice:
             case '6':   self.show_about_data()
+            case 'raw': switch_raw_setting()
             case _:     self.mainExtraction()
     
     
