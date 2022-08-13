@@ -24,6 +24,7 @@ config = 'config-file'
 RAW, ORIGINAL = 'ENABLED', 'DISABLED'
 
 def set_settings(setting=''):
+    """ Sets a new setting """
     if not os.path.exists(config):
         setting = ORIGINAL
     if setting:
@@ -33,6 +34,7 @@ def set_settings(setting=''):
     return False
 
 def get_current_settings() -> str :
+    """ Returns: current settings """
     set_settings()
     with open(config, 'r') as f:
         return f.read()
