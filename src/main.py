@@ -1,6 +1,7 @@
 # Imports
 import os
 
+
 app_name = 'Links Extractor'
 github_link = 'https://github.com/sayyid5416/Links-Extractor'
 
