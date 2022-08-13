@@ -43,7 +43,7 @@ def switch_raw_setting():
     """ Enable / Disable raw settings """
     newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
     set_settings(newVal)
-    print(f'{Fore.BLUE}=> Raw formatting {newVal}')
+    print(f'{Fore.BLUE}[Raw formatting {newVal}]')
 
 
 # Choices dict
