@@ -47,18 +47,26 @@ def switch_raw_setting():
 
 
 # Choices dict
-choiceDict :dict[str, tuple[str, str]] = {
-    '1': ('Web links', '(http/https)'),
-    '2': ('FTP links', '(ftp)'),
-    '3': ('MAIL links', '(mailto)'),
-    '4': ('All types of links', ''),
-    '5': ('Web-Crawl', '(all links)'),
-    '6': ('About', ''),
-    'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
-}
-choicesText = ''
-for a, b in choiceDict.items():
-    choicesText += f' {a} - {b[0]} {b[1]}\n'
+def get_choices() -> dict[str, tuple[str, str]] :
+    return {
+        '1': ('Web links', '(http/https)'),
+        '2': ('FTP links', '(ftp)'),
+        '3': ('MAIL links', '(mailto)'),
+        '4': ('All types of links', ''),
+        '5': ('Web-Crawl', '(all links)'),
+        '6': ('About', ''),
+        'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
+    }
+    
+
+def get_choices_str():
+    valsStr = ''
+    for a, b in get_choices().items():
+        valsStr += f' {a} - {b[0]} {b[1]}\n'
+    return valsStr
+
+choiceDict = get_choices()
+
 
 
 
@@ -100,7 +108,7 @@ class Extract_Links:
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
         print(app_name.center(os.get_terminal_size().columns))
-        print(choicesText)
+        print(get_choices_str())
         
         # Asking for user choice
         question = f'Enter your choice ({"/".join(choiceDict)})'
