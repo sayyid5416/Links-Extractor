@@ -19,18 +19,54 @@ from typing import Callable
 
 
 
+# Settings
+config = 'config-file'
+RAW, ORIGINAL = 'ENABLED', 'DISABLED'
+
+def set_settings(setting=''):
+    """ Sets a new setting """
+    if not os.path.exists(config):
+        setting = ORIGINAL
+    if setting:
+        with open(config, 'w') as f:
+            f.write(setting)
+            return True
+    return False
+
+def get_current_settings() -> str :
+    """ Returns: current settings """
+    set_settings()
+    with open(config, 'r') as f:
+        return f.read()
+
+def switch_raw_setting():
+    """ Enable / Disable raw settings """
+    newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
+    set_settings(newVal)
+    print(f'{Fore.BLUE}[Raw formatting {newVal}]')
+
+
 # Choices dict
-choiceDict :dict[str, tuple[str, str]] = {
-    '1': ('Web links', '(http/https)'),
-    '2': ('FTP links', '(ftp)'),
-    '3': ('MAIL links', '(mailto)'),
-    '4': ('All types of links', ''),
-    '5': ('Web-Crawl', '(all links)'),
-    '6': ('About', '')
-}
-choicesText = ''
-for a, b in choiceDict.items():
-    choicesText += f' {a} - {b[0]} {b[1]}\n'
+def get_choices() -> dict[str, tuple[str, str]] :
+    return {
+        '1': ('Web links', '(http/https)'),
+        '2': ('FTP links', '(ftp)'),
+        '3': ('MAIL links', '(mailto)'),
+        '4': ('All types of links', ''),
+        '5': ('Web-Crawl', '(all links)'),
+        '6': ('About', ''),
+        'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
+    }
+    
+
+def get_choices_str():
+    valsStr = ''
+    for a, b in get_choices().items():
+        valsStr += f' {a} - {b[0]} {b[1]}\n'
+    return valsStr
+
+choiceDict = get_choices()
+
 
 
 
@@ -64,6 +100,7 @@ class Extract_Links:
         # Main Action
         match self.userChoice:
             case '6':   self.show_about_data()
+            case 'raw': switch_raw_setting()
             case _:     self.mainExtraction()
     
     
@@ -71,7 +108,7 @@ class Extract_Links:
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
         print(app_name.center(os.get_terminal_size().columns))
-        print(choicesText)
+        print(get_choices_str())
         
         # Asking for user choice
         question = f'Enter your choice ({"/".join(choiceDict)})'
@@ -173,21 +210,26 @@ class Extract_Links:
         """
         Function to write extracted links to a new file
         """
+        rawEnabled = bool(get_current_settings() == RAW)
         with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Summary
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
             summaryData = [f'{a} {b}' for a, b in summary.items()]
             summaryStr = '\n'.join(summaryData + ['\n'])
             f.write("•" * 84)
+            if rawEnabled: 
+                f.write("\n----- RAW FORMAT -----")
             f.write(f'\n● Links extracted from "{self.sourcePath}"\n● {currentTime}\n\n')
             f.write(summaryStr)
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 threading.Thread(
-                    target=print, args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
+                    target=print, 
+                    args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
                 ).start()
-                f.write(f'    {i} - {link}\n')
+                if rawEnabled:  f.write(f'{link}\n')
+                else:           f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
             
         print(
