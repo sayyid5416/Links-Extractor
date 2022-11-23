@@ -1,5 +1,7 @@
+[![Generate Executable](https://github.com/sayyid5416/Links-Extractor/actions/workflows/executable.yml/badge.svg)](https://github.com/sayyid5416/Links-Extractor/actions/workflows/executable.yml)
+
+
 # Extract Links
-[![Pyinstaller](https://github.com/sayyid5416/Links-Extractor/actions/workflows/pyinstaller.yml/badge.svg)](https://github.com/sayyid5416/Links-Extractor/actions/workflows/pyinstaller.yml)
 
 From files on your PC             |  From any website
 :-------------------------:|:-------------------------:
