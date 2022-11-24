@@ -13,7 +13,7 @@ From files on your PC             |  From any website
   - Without worrying about issues like **duplicates**
   - Additional data like **timestamp** and **Total counts** will be saved too
 - File containing extracted links will be saved to `Desktop/Extracted links` folder.
-- Above screenshots are from [version 1.8](../../releases/tag/v1.8)
+- Above screenshots are from [version 1.8](https://github.com/sayyid5416/Links-Extractor/releases/tag/v1.8)
 - [Check all the features & changelog here](../../releases)
 
 # Installation
