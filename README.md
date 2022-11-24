@@ -1,4 +1,4 @@
-[![Generate Executable](https://github.com/sayyid5416/Links-Extractor/actions/workflows/executable.yml/badge.svg)](https://github.com/sayyid5416/Links-Extractor/actions/workflows/executable.yml)
+[![](../../actions/workflows/executable.yml/badge.svg)](../../actions/workflows/executable.yml)
 
 
 # Extract Links
@@ -13,8 +13,8 @@ From files on your PC             |  From any website
   - Without worrying about issues like **duplicates**
   - Additional data like **timestamp** and **Total counts** will be saved too
 - File containing extracted links will be saved to `Desktop/Extracted links` folder.
-- Above screenshots are from [version 1.8](https://github.com/sayyid5416/Extract_Links/releases/tag/v1.8)
-- [Check all the features & changelog here](https://github.com/sayyid5416/Extract_Links/releases)
+- Above screenshots are from [version 1.8](../../releases/tag/v1.8)
+- [Check all the features & changelog here](../../releases)
 
 # Installation
 ## You can use this app in two ways:
@@ -23,7 +23,7 @@ From files on your PC             |  From any website
      - Install required libraries: `pip install -r requirements.txt`
      - Launch `Link_Extractor.py`
   2. ### As an executable
-     1. Download executable directly from [release page](https://github.com/sayyid5416/Links-Extractor/releases), or
+     1. Download executable directly from [release page](../../releases), or
      2. Create your own executable from the source code
 
 
