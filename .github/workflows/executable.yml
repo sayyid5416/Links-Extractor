@@ -7,13 +7,9 @@ on:
 
 jobs:
   generate_win_exe:
-    name: Generating windows executable
+    name: Generate windows executable
     runs-on: windows-latest
     steps:
-    
-    - name: Checkout
-      uses: actions/checkout@main
-    
     - name: Pyinstaller build
       uses: sayyid5416/pyinstaller@v1
       with:
