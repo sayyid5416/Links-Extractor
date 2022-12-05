@@ -13,79 +13,173 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests, winshell, webbrowser, time, sys
+import re, threading, webbrowser, time, sys, json
 from datetime import datetime
-from colorama import Fore
 from typing import Callable
+from colorama import Fore
+import requests
 
 
 
-# Settings
-config = 'config-file'
-RAW, ORIGINAL = 'ENABLED', 'DISABLED'
 
-def set_settings(setting=''):
-    """ Sets a new setting """
-    if not os.path.exists(config):
-        setting = ORIGINAL
-    if setting:
-        with open(config, 'w') as f:
-            f.write(setting)
-            return True
-    return False
+## ----------------------------------------------- Prints ----------------------------------------------- ##
+def pp(text:str, fore=Fore.WHITE, end:str='\n'):
+    return print(f'{fore}{text}{Fore.WHITE}', end=end)
 
-def get_current_settings() -> str :
-    """ Returns: current settings """
-    set_settings()
-    with open(config, 'r') as f:
-        return f.read()
+def pp_info(text):
+    return pp(text, Fore.GREEN)
 
-def switch_raw_setting():
-    """ Enable / Disable raw settings """
-    newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
-    set_settings(newVal)
-    print(f'{Fore.BLUE}[Raw formatting {newVal}]')
+def pp_info_2(text):
+    return pp(text, Fore.CYAN)
 
+def pp_error(text):
+    return pp(text, Fore.LIGHTRED_EX)
 
-# Choices dict
-def get_choices() -> dict[str, tuple[str, str]] :
-    return {
-        '1': ('Web links', '(http/https)'),
-        '2': ('FTP links', '(ftp)'),
-        '3': ('MAIL links', '(mailto)'),
-        '4': ('All types of links', ''),
-        '5': ('Web-Crawl', '(all links)'),
-        '6': ('About', ''),
-        'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
-    }
+def pp_input(text):
+    return pp(text, Fore.LIGHTBLUE_EX)
+
+def pp_question(text):
+    return input(f'{Fore.WHITE}> {text}: {Fore.LIGHTBLUE_EX}')
     
 
-def get_choices_str():
-    valsStr = ''
-    for a, b in get_choices().items():
-        valsStr += f' {a} - {b[0]} {b[1]}\n'
-    return valsStr
 
-choiceDict = get_choices()
+## ----------------------------------------------- Directory ----------------------------------------------- ##
+
+def get_desktop_path():
+    """ Returns: Desktop path, create if not exist """
+    desktop = os.path.join(
+        os.environ.get('USERPROFILE', '/'), 
+        'Desktop'
+    )
+    if not os.path.exists(desktop):
+        os.makedirs(desktop)
+    return desktop
+
+def get_saving_directory():
+    """ Returns: Path of directory where extracted links will be saved , create if not exist """
+    dirPath =  os.path.join(get_desktop_path(), 'Extracted Links')
+    if not os.path.exists(dirPath):
+        os.makedirs(dirPath)
+    return dirPath
+
+
+# Settings folder
+_settingsDir = os.path.join(
+    os.environ.get('LOCALAPPDATA', 'App-Data'),
+    'Links-Extractor'
+)
+# Settings file
+_settingsFile = os.path.join(_settingsDir, 'links-extractor.json')
+
+
+
+## ----------------------------------------------- Settings ----------------------------------------------- ##
+_default_settings = {
+    'raw': False
+}
+
+
+def get_settings_file():
+    """ Returns settings file path
+    - Handles if filepath doesn't exist
+    """
+    # Create settings folder -> If missing
+    if not os.path.exists(_settingsDir):
+        os.makedirs(_settingsDir)
+    
+    # Write default settings file -> If missing
+    if not os.path.exists(_settingsFile):
+        with open(_settingsFile, 'w') as f:
+            json.dump(_default_settings, f, indent=4, sort_keys=True)
+    
+    return _settingsFile
+
+
+def get_current_settings() -> dict[str, bool] :
+    """ Returns: all current settings """
+    with open(get_settings_file(), 'r') as f:
+        return json.load(f)
+
+
+def get_specific_setting(setting:str):
+    """ Returns value of `setting` from current settings """
+    settings = get_current_settings()
+    return settings.get(
+        setting,
+        _default_settings.get(setting, False)
+    )
+
+
+def set_settings(setting:str, value:bool):
+    """ Sets a new setting """
+    settings = get_current_settings()               # current settings
+    settings.update({setting: value})               # updated settings
+
+    # Save new settings
+    with open(get_settings_file(), 'w') as f:
+        json.dump(settings, f, indent=4, sort_keys=True)
+    
+
+## ------------- Settings
+def switch_raw_setting():
+    """ Enable / Disable raw settings """
+    oldRawSetting = get_specific_setting('raw')
+    newRawSetting = not oldRawSetting
+    set_settings('raw', newRawSetting)
+    pp_info(f'[Raw formatting {"ENABLED" if newRawSetting else "DISABLED"}]')
 
 
 
 
+## ----------------------------------------------- Program ----------------------------------------------- ##
 def D_error_catcher(func:Callable):
     """ Decorator to catch errors """
     def wrapper(*args, **kwargs):
-        try:        
+        try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
-            print(Fore.GREEN, '[Exit]')
-            print(Fore.RESET)
+            pp_input(f'<ctrl+c>')
+            pp_info('[Exited]\n\n')
             sys.exit()
-        except FileNotFoundError:   
-            print(f'{Fore.RED}=> [Error] Source not found. Write proper file name...')
-        except Exception as e:      
-            print(f'{Fore.RED}=> [Error] {e}, Try again...')
+        except FileNotFoundError:
+            pp_error('=> [Error] Source not found. Write proper file name...')
+        except Exception as e:
+            pp_error(f'=> [Error] {e}, Try again...')
     return wrapper
 
+
+def get_choices(asString:bool=False):
+    """ Returns available choices 
+    - if `asString` is `True`: Returns a properly formatted string
+    """
+    # Settings
+    rawSetting = "ENABLED" if get_specific_setting('raw') else "DISABLED"
+    
+    # Choices
+    _choices :dict[str, tuple[str, str]] = {
+        '1': ('[File] Web links', '(http/https)'),
+        '2': ('[File] FTP links', '(ftp)'),
+        '3': ('[File] MAIL links', '(mailto)'),
+        '4': ('[File] All types of links', ''),
+        'web': ('[Web-Crawl] All types of links', ''),
+        'about': ('About', ''),
+        'raw': ('Enable/Disable raw formatting of links', f'({rawSetting})')
+    }
+    
+    # If as string:
+    if asString:
+        _stringChoices = ''
+        for a, b in _choices.items():
+            _stringChoices += f' {a:5} -  {b[0]} {b[1]}\n'
+        return _stringChoices
+    
+    return _choices
+
+
+_choiceDict = get_choices()
+if isinstance(_choiceDict, str):
+    raise TypeError(f'"choiceDict" should be a "dict", and not a "str"')
+choiceDict = _choiceDict
 
 
 
@@ -94,13 +188,12 @@ class Extract_Links:
     @D_error_catcher
     def __init__(self):
         # User choices
-        print(Fore.WHITE, end='')
+        pp(app_name.center(os.get_terminal_size().columns), end='\n\n')
         self.userChoice = self.getUserChoice()
-        print(Fore.RESET, end='')
         
         # Main Action
         match self.userChoice:
-            case '6':   self.show_about_data()
+            case 'about':   self.show_about_data()
             case 'raw': switch_raw_setting()
             case _:     self.mainExtraction()
     
@@ -108,24 +201,21 @@ class Extract_Links:
     def getUserChoice(self):
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
-        print(app_name.center(os.get_terminal_size().columns))
-        print(get_choices_str())
+        print(get_choices(asString=True))
         
         # Asking for user choice
-        question = f'Enter your choice ({"/".join(choiceDict)})'
-        choice = self.takeUserInput(question)
-        while choice not in choiceDict:
-            choice = self.takeUserInput(question)
-        print()
-        
-        return choice
+        while True:
+            choice = self.takeUserInput(f'Enter your choice ({"/".join(choiceDict)})')
+            if choice in choiceDict:
+                print()
+                return choice
     
     
     def mainExtraction(self):
         """ Main Links extraction """
         # Ask for source location -> Get its data
         match self.userChoice:
-            case '5':                                                                                       # Web
+            case 'web':                                                                                       # Web
                 self.sourcePath = self.takeUserInput('Enter web-address (Ex: github.com/sayyid5416)', [('\\', '/')], web=True)
                 sourceData = requests.get(self.sourcePath).text
             case _:                                                                                         # Local-file
@@ -139,9 +229,8 @@ class Extract_Links:
         retData = self.get_extractedLinks(sourceData)
         
         # Save data -> open saved file
-        fileLocation = self.get_filePath()
-        self.saveToFile(fileLocation, retData[0], retData[1])
-        threading.Thread(target=lambda: os.system(f'""{fileLocation}""'), daemon=True).start()
+        self.saveToFile(retData[0], retData[1])
+        threading.Thread(target=lambda: os.system(f'""{self.get_filePath()}""'), daemon=True).start()
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
@@ -149,7 +238,7 @@ class Extract_Links:
     def takeUserInput(question:str, replaceList=[], web:bool=False):
         """ Asks user input & Returns: modified text """    
         # Input
-        x = input(f'{Fore.WHITE}> {question}: {Fore.LIGHTBLUE_EX}')
+        x = pp_question(question)
         
         # Modifications
         if replaceList:
@@ -168,18 +257,17 @@ class Extract_Links:
             fileName = fileName.replace(i, '-')
         fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
         
-        # Parent directory
-        dirPath = os.path.join(winshell.desktop(), 'Extracted Links')
-        if not os.path.exists(dirPath):
-            os.makedirs(dirPath)
-            
         # File path
-        return os.path.join(dirPath, fileName)
+        filePath = os.path.join(get_saving_directory(), fileName)
+
+        return filePath
     
     def get_extractedLinks(self, sourceData:str):
         """
         Returns: (`extracted-links`, `extraction-summary`)
         """
+        _userChoice = str(self.userChoice)
+        
         def getLinks(regex:str) -> set[str] :
             return set(re.findall(regex, sourceData, re.IGNORECASE))
         
@@ -189,8 +277,8 @@ class Extract_Links:
         mailLinks  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
 
         # Extracted links
-        if self.userChoice == '5': self.userChoice = '4'
-        match self.userChoice:
+        if _userChoice == 'web': _userChoice = '4'
+        match _userChoice:
             case '1':   text, linksList = '◆ Web links:', webLinks
             case '2':   text, linksList = '◆ FTP links:', ftpLinks
             case '3':   text, linksList = '◆ Mail links:', mailLinks
@@ -199,7 +287,7 @@ class Extract_Links:
         
         # Extraction summary
         summaryDict = {text: len(linksList)}
-        if self.userChoice == '4':
+        if _userChoice == '4':
             summaryDict.update({'        • Web links:'  : len(webLinks)})
             summaryDict.update({'        • FTP links:'  : len(ftpLinks)})
             summaryDict.update({'        • Mail links:' : len(mailLinks)})
@@ -207,11 +295,12 @@ class Extract_Links:
         summaryDict.update({'◆ Lines:': len(sourceData.split('\n'))})
         return linksList, summaryDict
 
-    def saveToFile(self, fileLocation, extractedLinks:set[str], summary:dict[str, int]):
+    def saveToFile(self, extractedLinks:set[str], summary:dict[str, int]):
         """
         Function to write extracted links to a new file
         """
-        rawEnabled = bool(get_current_settings() == RAW)
+        fileLocation = self.get_filePath()
+        rawEnabled = get_specific_setting('raw')
         with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Summary
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
@@ -226,38 +315,41 @@ class Extract_Links:
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 threading.Thread(
-                    target=print, 
-                    args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
+                    target=lambda: pp_info(f'{i} -- Extracted -- {link}')
                 ).start()
                 if rawEnabled:  f.write(f'{link}\n')
                 else:           f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
-            
-        print(
-            f'{Fore.BLUE}{summaryStr}'
-            f'{Fore.YELLOW}=> Data saved to "{fileLocation}"'
-        )   # Summary
+        
+        # Summary
+        pp_info_2(summaryStr)
+        pp_info(f'=> Data saved to "{fileLocation}"')
 
     def show_about_data(self):
-        print(
-            f'{Fore.GREEN}'
-            "App Name: Links Extractor\n" \
-            "Creator: Hussain Abbas\n" \
-            f"App Webpage: {github_link}\n"
-            "Press <ctrl+c> any time to exit the app\n"
-        )
+        data = {
+            'app name': 'Links Extractor',
+            'saving directory': get_saving_directory(),
+            'settings file': get_settings_file(),
+            'creator': os.path.split(github_link)[0],
+            'app webpage': github_link,
+        }
+        statement = ''
+        for a, b in data.items():
+            statement += f'{Fore.GREEN}{a.title():20} : {Fore.LIGHTBLUE_EX}{b}\n'
+        print(statement)
+        pp_info_2('Press <ctrl+c> any time to exit the app\n')
+
         update_check = self.takeUserInput('Check for updates? (y/n) ')
-        print(f'{Fore.GREEN}', end='')
         if update_check.lower() in ['y', 'yes']:
             threading.Thread(
                 target=lambda: webbrowser.open(
                     f'{github_link}/releases/latest'
                 )
             ).start()
-            print('[Opening the app update page....]\n\n')
+            pp_info('[Opening the app update page....]\n\n')
             time.sleep(2)
         else:
-            print('[Skipped]')
+            pp_info('[Skipped]')
 
 
 
