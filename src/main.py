@@ -53,7 +53,10 @@ def get_desktop_path():
     return desktop
 
 def get_saving_directory():
-    return os.path.join(get_desktop_path(), 'Extracted Links')
+    dirPath =  os.path.join(get_desktop_path(), 'Extracted Links')
+    if not os.path.exists(dirPath):
+        os.mkdir(dirPath)
+    return dirPath
 
 
 
@@ -176,9 +179,8 @@ class Extract_Links:
         retData = self.get_extractedLinks(sourceData)
         
         # Save data -> open saved file
-        fileLocation = self.get_filePath()
-        self.saveToFile(fileLocation, retData[0], retData[1])
-        threading.Thread(target=lambda: os.system(f'""{fileLocation}""'), daemon=True).start()
+        self.saveToFile(retData[0], retData[1])
+        threading.Thread(target=lambda: os.system(f'""{self.get_filePath()}""'), daemon=True).start()
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
@@ -205,13 +207,10 @@ class Extract_Links:
             fileName = fileName.replace(i, '-')
         fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
         
-        # Parent directory
-        dirPath = get_saving_directory()
-        if not os.path.exists(dirPath):
-            os.makedirs(dirPath)
-            
         # File path
-        return os.path.join(dirPath, fileName)
+        filePath = os.path.join(get_saving_directory(), fileName)
+        
+        return filePath
     
     def get_extractedLinks(self, sourceData:str):
         """
@@ -244,10 +243,11 @@ class Extract_Links:
         summaryDict.update({'◆ Lines:': len(sourceData.split('\n'))})
         return linksList, summaryDict
 
-    def saveToFile(self, fileLocation, extractedLinks:set[str], summary:dict[str, int]):
+    def saveToFile(self, extractedLinks:set[str], summary:dict[str, int]):
         """
         Function to write extracted links to a new file
         """
+        fileLocation = self.get_filePath()
         rawEnabled = bool(get_current_settings() == RAW)
         with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Summary
