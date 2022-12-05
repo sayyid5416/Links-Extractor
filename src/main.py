@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, webbrowser, time, sys
+import re, threading, webbrowser, time, sys, json
 from datetime import datetime
 from typing import Callable
 from colorama import Fore
@@ -22,7 +22,7 @@ import requests
 
 
 
-## ---------------------------- Prints ---------------------------- ##
+## ----------------------------------------------- Prints ----------------------------------------------- ##
 def pp(text:str, fore=Fore.WHITE, end:str='\n'):
     return print(f'{fore}{text}{Fore.WHITE}', end=end)
 
@@ -43,57 +43,101 @@ def pp_question(text):
     
 
 
-## ---------------------------- Directory ---------------------------- ##
+## ----------------------------------------------- Directory ----------------------------------------------- ##
 
 def get_desktop_path():
+    """ Returns: Desktop path, create if not exist """
     desktop = os.path.join(
         os.environ.get('USERPROFILE', '/'), 
         'Desktop'
     )
     if not os.path.exists(desktop):
-        os.mkdir(desktop)
+        os.makedirs(desktop)
     return desktop
 
 def get_saving_directory():
+    """ Returns: Path of directory where extracted links will be saved , create if not exist """
     dirPath =  os.path.join(get_desktop_path(), 'Extracted Links')
     if not os.path.exists(dirPath):
-        os.mkdir(dirPath)
+        os.makedirs(dirPath)
     return dirPath
 
 
+# Settings folder
+_settingsDir = os.path.join(
+    os.environ.get('LOCALAPPDATA', 'App-Data'),
+    'Link-Extractor'
+)
+# Settings file
+_settingsFile = os.path.join(_settingsDir, 'link-extractor.json')
 
-## ---------------------------- Settings ---------------------------- ##
-# Settings
-config = 'link-extractor.json'
-RAW, ORIGINAL = 'ENABLED', 'DISABLED'
 
-def set_settings(setting=''):
+
+## ----------------------------------------------- Settings ----------------------------------------------- ##
+_default_settings = {
+    'raw': False
+}
+
+
+def get_settings_file():
+    """ Returns settings file path
+    - Handles if filepath doesn't exist
+    """
+    # Create settings folder -> If missing
+    if not os.path.exists(_settingsDir):
+        os.makedirs(_settingsDir)
+    
+    # Write default settings file -> If missing
+    if not os.path.exists(_settingsFile):
+        with open(_settingsFile, 'w') as f:
+            json.dump(_default_settings, f, indent=4, sort_keys=True)
+    
+    return _settingsFile
+
+
+def get_current_settings() -> dict[str, bool] :
+    """ Returns: all current settings """
+    with open(get_settings_file(), 'r') as f:
+        return json.load(f)
+
+
+def get_specific_setting(setting:str):
+    """ Returns value of `setting` from current settings """
+    settings = get_current_settings()
+    return settings.get(
+        setting,
+        _default_settings.get(setting, False)
+    )
+
+
+def set_settings(setting:str, value:bool):
     """ Sets a new setting """
-    if not os.path.exists(config):
-        setting = ORIGINAL
-    if setting:
-        with open(config, 'w') as f:
-            f.write(setting)
-            return True
-    return False
+    settings = get_current_settings()               # current settings
+    settings.update({setting: value})               # updated settings
 
-def get_current_settings() -> str :
-    """ Returns: current settings """
-    set_settings()
-    with open(config, 'r') as f:
-        return f.read()
+    # Save new settings
+    with open(get_settings_file(), 'w') as f:
+        json.dump(settings, f, indent=4, sort_keys=True)
+    
 
+## ------------- Settings
 def switch_raw_setting():
     """ Enable / Disable raw settings """
-    newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
-    set_settings(newVal)
-    pp_info(f'[Raw formatting {newVal}]')
+    oldRawSetting = get_specific_setting('raw')
+    newRawSetting = not oldRawSetting
+    set_settings('raw', newRawSetting)
+    pp_info(f'[Raw formatting {"ENABLED" if newRawSetting else "DISABLED"}]')
+
 
 
 
 ## ---------------------------- Program ---------------------------- ##
 # Choices dict
 def get_choices() -> dict[str, tuple[str, str]] :
+    # Settings
+    rawSetting = "ENABLED" if get_specific_setting('raw') else "DISABLED"
+    
+    # Choices
     return {
         '1': ('[File] Web links', '(http/https)'),
         '2': ('[File] FTP links', '(ftp)'),
@@ -101,7 +145,7 @@ def get_choices() -> dict[str, tuple[str, str]] :
         '4': ('[File] All types of links', ''),
         'web': ('[Web-Crawl] All types of links', ''),
         'about': ('About', ''),
-        'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
+        'raw': ('Enable/Disable raw formatting of links', f'({rawSetting})')
     }
     
 
@@ -252,7 +296,7 @@ class Extract_Links:
         Function to write extracted links to a new file
         """
         fileLocation = self.get_filePath()
-        rawEnabled = bool(get_current_settings() == RAW)
+        rawEnabled = get_specific_setting('raw')
         with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Summary
             currentTime = datetime.now().strftime(r'%d/%b/%Y   %I:%M %p')
@@ -281,6 +325,7 @@ class Extract_Links:
         data = {
             'app name': 'Links Extractor',
             'saving directory': get_saving_directory(),
+            'settings file': get_settings_file(),
             'creator': os.path.split(github_link)[0],
             'app webpage': github_link,
         }
