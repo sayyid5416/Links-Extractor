@@ -20,9 +20,22 @@ from colorama import Fore
 import requests
 
 
+## ---------------------------- Prints ---------------------------- ##
 def pp(text:str, fore=Fore.WHITE, end:str='\n'):
     return print(f'{fore}{text}', end=end)
 
+def pp_info(text):
+    return pp(text, Fore.GREEN)
+
+def pp_input(text):
+    return pp(text, Fore.LIGHTBLUE_EX)
+
+def pp_error(text):
+    return pp(text, Fore.RED)
+    
+
+
+## ---------------------------- Directory ---------------------------- ##
 
 def get_desktop_path():
     desktop = os.path.join(
@@ -38,6 +51,7 @@ def get_saving_directory():
 
 
 
+## ---------------------------- Program ---------------------------- ##
 # Settings
 config = 'config-file'
 RAW, ORIGINAL = 'ENABLED', 'DISABLED'
@@ -62,7 +76,7 @@ def switch_raw_setting():
     """ Enable / Disable raw settings """
     newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
     set_settings(newVal)
-    pp(f'[Raw formatting {newVal}]', Fore.BLUE)
+    pp_info(f'[Raw formatting {newVal}]')
 
 
 # Choices dict
@@ -95,14 +109,14 @@ def D_error_catcher(func:Callable):
         try:        
             return func(*args, **kwargs)
         except KeyboardInterrupt:
-            pp(f'<ctrl+c>', Fore.BLUE)
-            pp('[Exited]', Fore.GREEN)
+            pp_input(f'<ctrl+c>')
+            pp_info('[Exited]')
             print(Fore.WHITE)
             sys.exit()
         except FileNotFoundError:   
-            pp('=> [Error] Source not found. Write proper file name...', Fore.RED)
+            pp_error('=> [Error] Source not found. Write proper file name...')
         except Exception as e:      
-            pp(f'=> [Error] {e}, Try again...', Fore.RED)
+            pp_error(f'=> [Error] {e}, Try again...')
     return wrapper
 
 
@@ -244,15 +258,15 @@ class Extract_Links:
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 threading.Thread(
-                    target=lambda: pp(f'{i} -- Extracted -- {link}', Fore.GREEN)
+                    target=lambda: pp_info(f'{i} -- Extracted -- {link}')
                 ).start()
                 if rawEnabled:  f.write(f'{link}\n')
                 else:           f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
         
         # Summary
-        pp(summaryStr, Fore.BLUE)
-        pp(f'=> Data saved to "{fileLocation}"', Fore.YELLOW)
+        pp(summaryStr, Fore.CYAN)
+        pp_info(f'=> Data saved to "{fileLocation}"')
 
     def show_about_data(self):
         data = {
@@ -263,22 +277,21 @@ class Extract_Links:
         }
         statement = ''
         for a, b in data.items():
-            statement += f'{Fore.GREEN}{a.title():20} : {Fore.BLUE}{b}\n'
+            statement += f'{Fore.GREEN}{a.title():20} : {Fore.LIGHTBLUE_EX}{b}\n'
         print(statement)
         pp('Press <ctrl+c> any time to exit the app\n', Fore.CYAN)
 
         update_check = self.takeUserInput('Check for updates? (y/n) ')
-        pp('', Fore.GREEN, end='')
         if update_check.lower() in ['y', 'yes']:
             threading.Thread(
                 target=lambda: webbrowser.open(
                     f'{github_link}/releases/latest'
                 )
             ).start()
-            pp('[Opening the app update page....]\n\n', Fore.GREEN)
+            pp_info('[Opening the app update page....]\n\n')
             time.sleep(2)
         else:
-            pp('[Skipped]', Fore.GREEN)
+            pp_info('[Skipped]')
 
 
 
