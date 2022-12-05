@@ -66,10 +66,10 @@ def get_saving_directory():
 # Settings folder
 _settingsDir = os.path.join(
     os.environ.get('LOCALAPPDATA', 'App-Data'),
-    'Link-Extractor'
+    'Links-Extractor'
 )
 # Settings file
-_settingsFile = os.path.join(_settingsDir, 'link-extractor.json')
+_settingsFile = os.path.join(_settingsDir, 'links-extractor.json')
 
 
 
