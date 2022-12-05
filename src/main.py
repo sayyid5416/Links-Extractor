@@ -62,9 +62,9 @@ def get_saving_directory():
 
 
 
-## ---------------------------- Program ---------------------------- ##
+## ---------------------------- Settings ---------------------------- ##
 # Settings
-config = 'config-file'
+config = 'link-extractor.json'
 RAW, ORIGINAL = 'ENABLED', 'DISABLED'
 
 def set_settings(setting=''):
@@ -90,6 +90,8 @@ def switch_raw_setting():
     pp_info(f'[Raw formatting {newVal}]')
 
 
+
+## ---------------------------- Program ---------------------------- ##
 # Choices dict
 def get_choices() -> dict[str, tuple[str, str]] :
     return {
@@ -111,8 +113,6 @@ def get_choices_str():
 
 
 choiceDict = get_choices()
-
-
 
 
 def D_error_catcher(func:Callable):
