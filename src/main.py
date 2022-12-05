@@ -37,7 +37,7 @@ def pp_input(text):
     return pp(text, Fore.LIGHTBLUE_EX)
 
 def pp_question(text):
-    return input(f'{Fore.WHITE}{text}{Fore.LIGHTBLUE_EX}')
+    return input(f'{Fore.WHITE}> {text}: {Fore.LIGHTBLUE_EX}')
     
 
 
@@ -88,12 +88,12 @@ def switch_raw_setting():
 # Choices dict
 def get_choices() -> dict[str, tuple[str, str]] :
     return {
-        '1': ('Web links', '(http/https)'),
-        '2': ('FTP links', '(ftp)'),
-        '3': ('MAIL links', '(mailto)'),
-        '4': ('All types of links', ''),
-        '5': ('Web-Crawl', '(all links)'),
-        '6': ('About', ''),
+        '1': ('[file] Web links', '(http/https)'),
+        '2': ('[file] FTP links', '(ftp)'),
+        '3': ('[file] MAIL links', '(mailto)'),
+        '4': ('[file] All types of links', ''),
+        'web': ('[Web-Crawl] All types of links', ''),
+        'about': ('About', ''),
         'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
     }
     
@@ -101,8 +101,9 @@ def get_choices() -> dict[str, tuple[str, str]] :
 def get_choices_str():
     valsStr = ''
     for a, b in get_choices().items():
-        valsStr += f' {a:3} -  {b[0]} {b[1]}\n'
+        valsStr += f' {a:5} -  {b[0]} {b[1]}\n'
     return valsStr
+
 
 choiceDict = get_choices()
 
@@ -112,15 +113,15 @@ choiceDict = get_choices()
 def D_error_catcher(func:Callable):
     """ Decorator to catch errors """
     def wrapper(*args, **kwargs):
-        try:        
+        try:
             return func(*args, **kwargs)
         except KeyboardInterrupt:
             pp_input(f'<ctrl+c>')
             pp_info('[Exited]\n\n')
             sys.exit()
-        except FileNotFoundError:   
+        except FileNotFoundError:
             pp_error('=> [Error] Source not found. Write proper file name...')
-        except Exception as e:      
+        except Exception as e:
             pp_error(f'=> [Error] {e}, Try again...')
     return wrapper
 
@@ -137,7 +138,7 @@ class Extract_Links:
         
         # Main Action
         match self.userChoice:
-            case '6':   self.show_about_data()
+            case 'about':   self.show_about_data()
             case 'raw': switch_raw_setting()
             case _:     self.mainExtraction()
     
@@ -161,7 +162,7 @@ class Extract_Links:
         """ Main Links extraction """
         # Ask for source location -> Get its data
         match self.userChoice:
-            case '5':                                                                                       # Web
+            case 'web':                                                                                       # Web
                 self.sourcePath = self.takeUserInput('Enter web-address (Ex: github.com/sayyid5416)', [('\\', '/')], web=True)
                 sourceData = requests.get(self.sourcePath).text
             case _:                                                                                         # Local-file
@@ -185,7 +186,7 @@ class Extract_Links:
     def takeUserInput(question:str, replaceList=[], web:bool=False):
         """ Asks user input & Returns: modified text """    
         # Input
-        x = pp_question(f'> {question}: ')
+        x = pp_question(question)
         
         # Modifications
         if replaceList:
@@ -225,7 +226,7 @@ class Extract_Links:
         mailLinks  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
 
         # Extracted links
-        if self.userChoice == '5': self.userChoice = '4'
+        if self.userChoice == 'web': self.userChoice = '4'
         match self.userChoice:
             case '1':   text, linksList = '◆ Web links:', webLinks
             case '2':   text, linksList = '◆ FTP links:', ftpLinks
