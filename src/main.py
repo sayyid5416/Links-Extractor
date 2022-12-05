@@ -132,33 +132,6 @@ def switch_raw_setting():
 
 
 ## ----------------------------------------------- Program ----------------------------------------------- ##
-# Choices dict
-def get_choices() -> dict[str, tuple[str, str]] :
-    # Settings
-    rawSetting = "ENABLED" if get_specific_setting('raw') else "DISABLED"
-    
-    # Choices
-    return {
-        '1': ('[File] Web links', '(http/https)'),
-        '2': ('[File] FTP links', '(ftp)'),
-        '3': ('[File] MAIL links', '(mailto)'),
-        '4': ('[File] All types of links', ''),
-        'web': ('[Web-Crawl] All types of links', ''),
-        'about': ('About', ''),
-        'raw': ('Enable/Disable raw formatting of links', f'({rawSetting})')
-    }
-    
-
-def get_choices_str():
-    valsStr = ''
-    for a, b in get_choices().items():
-        valsStr += f' {a:5} -  {b[0]} {b[1]}\n'
-    return valsStr
-
-
-choiceDict = get_choices()
-
-
 def D_error_catcher(func:Callable):
     """ Decorator to catch errors """
     def wrapper(*args, **kwargs):
@@ -174,6 +147,39 @@ def D_error_catcher(func:Callable):
             pp_error(f'=> [Error] {e}, Try again...')
     return wrapper
 
+
+def get_choices(asString:bool=False):
+    """ Returns available choices 
+    - if `asString` is `True`: Returns a properly formatted string
+    """
+    # Settings
+    rawSetting = "ENABLED" if get_specific_setting('raw') else "DISABLED"
+    
+    # Choices
+    _choices :dict[str, tuple[str, str]] = {
+        '1': ('[File] Web links', '(http/https)'),
+        '2': ('[File] FTP links', '(ftp)'),
+        '3': ('[File] MAIL links', '(mailto)'),
+        '4': ('[File] All types of links', ''),
+        'web': ('[Web-Crawl] All types of links', ''),
+        'about': ('About', ''),
+        'raw': ('Enable/Disable raw formatting of links', f'({rawSetting})')
+    }
+    
+    # If as string:
+    if asString:
+        _stringChoices = ''
+        for a, b in _choices.items():
+            _stringChoices += f' {a:5} -  {b[0]} {b[1]}\n'
+        return _stringChoices
+    
+    return _choices
+
+
+_choiceDict = get_choices()
+if isinstance(_choiceDict, str):
+    raise TypeError(f'"choiceDict" should be a "dict", and not a "str"')
+choiceDict = _choiceDict
 
 
 
@@ -195,7 +201,7 @@ class Extract_Links:
     def getUserChoice(self):
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
-        print(get_choices_str())
+        print(get_choices(asString=True))
         
         # Asking for user choice
         question = f'Enter your choice ({"/".join(choiceDict)})'
