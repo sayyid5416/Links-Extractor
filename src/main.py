@@ -22,7 +22,7 @@ import requests
 
 ## ---------------------------- Prints ---------------------------- ##
 def pp(text:str, fore=Fore.WHITE, end:str='\n'):
-    return print(f'{fore}{text}', end=end)
+    return print(f'{fore}{text}{Fore.WHITE}', end=end)
 
 def pp_info(text):
     return pp(text, Fore.GREEN)
@@ -116,8 +116,7 @@ def D_error_catcher(func:Callable):
             return func(*args, **kwargs)
         except KeyboardInterrupt:
             pp_input(f'<ctrl+c>')
-            pp_info('[Exited]')
-            print(Fore.WHITE)
+            pp_info('[Exited]\n\n')
             sys.exit()
         except FileNotFoundError:   
             pp_error('=> [Error] Source not found. Write proper file name...')
