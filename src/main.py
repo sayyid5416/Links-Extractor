@@ -20,6 +20,9 @@ from colorama import Fore
 import requests
 
 
+def pp(text:str, fore=Fore.WHITE, end:str='\n'):
+    return print(f'{fore}{text}', end=end)
+
 
 def get_desktop_path():
     desktop = os.path.join(
@@ -59,7 +62,7 @@ def switch_raw_setting():
     """ Enable / Disable raw settings """
     newVal = RAW if get_current_settings() == ORIGINAL else ORIGINAL
     set_settings(newVal)
-    print(f'{Fore.BLUE}[Raw formatting {newVal}]')
+    pp(f'[Raw formatting {newVal}]', Fore.BLUE)
 
 
 # Choices dict
@@ -92,13 +95,14 @@ def D_error_catcher(func:Callable):
         try:        
             return func(*args, **kwargs)
         except KeyboardInterrupt:
-            print(Fore.GREEN, '[Exit]')
-            print(Fore.RESET)
+            pp(f'<ctrl+c>', Fore.BLUE)
+            pp('[Exited]', Fore.GREEN)
+            print(Fore.WHITE)
             sys.exit()
         except FileNotFoundError:   
-            print(f'{Fore.RED}=> [Error] Source not found. Write proper file name...')
+            pp('=> [Error] Source not found. Write proper file name...', Fore.RED)
         except Exception as e:      
-            print(f'{Fore.RED}=> [Error] {e}, Try again...')
+            pp(f'=> [Error] {e}, Try again...', Fore.RED)
     return wrapper
 
 
@@ -109,9 +113,8 @@ class Extract_Links:
     @D_error_catcher
     def __init__(self):
         # User choices
-        print(Fore.WHITE, end='')
+        pp('', Fore.WHITE, end='')
         self.userChoice = self.getUserChoice()
-        print(Fore.RESET, end='')
         
         # Main Action
         match self.userChoice:
@@ -241,17 +244,15 @@ class Extract_Links:
             # Links
             for i, link in enumerate(extractedLinks, start=1):
                 threading.Thread(
-                    target=print, 
-                    args=[f'{Fore.GREEN}{i} -- Extracted -- {link}']
+                    target=lambda: pp(f'{i} -- Extracted -- {link}', Fore.GREEN)
                 ).start()
                 if rawEnabled:  f.write(f'{link}\n')
                 else:           f.write(f'    {i} - {link}\n')
             f.writelines(['‾'*100, '\n\n\n'])
-            
-        print(
-            f'{Fore.BLUE}{summaryStr}'
-            f'{Fore.YELLOW}=> Data saved to "{fileLocation}"'
-        )   # Summary
+        
+        # Summary
+        pp(summaryStr, Fore.BLUE)
+        pp(f'=> Data saved to "{fileLocation}"', Fore.YELLOW)
 
     def show_about_data(self):
         data = {
@@ -260,24 +261,24 @@ class Extract_Links:
             'creator': 'https://t.me/sayyid5416',
             'app webpage': github_link,
         }
-        statement = f'{Fore.GREEN}'
+        statement = ''
         for a, b in data.items():
             statement += f'{Fore.GREEN}{a.title():20} : {Fore.BLUE}{b}\n'
-        statement += f"{Fore.CYAN}Press <ctrl+c> any time to exit the app\n"
         print(statement)
+        pp('Press <ctrl+c> any time to exit the app\n', Fore.CYAN)
 
         update_check = self.takeUserInput('Check for updates? (y/n) ')
-        print(f'{Fore.GREEN}', end='')
+        pp('', Fore.GREEN, end='')
         if update_check.lower() in ['y', 'yes']:
             threading.Thread(
                 target=lambda: webbrowser.open(
                     f'{github_link}/releases/latest'
                 )
             ).start()
-            print('[Opening the app update page....]\n\n')
+            pp('[Opening the app update page....]\n\n', Fore.GREEN)
             time.sleep(2)
         else:
-            print('[Skipped]')
+            pp('[Skipped]', Fore.GREEN)
 
 
 
