@@ -30,6 +30,9 @@ def get_desktop_path():
         os.mkdir(desktop)
     return desktop
 
+def get_saving_directory():
+    return os.path.join(get_desktop_path(), 'Extracted Links')
+
 
 
 # Settings
@@ -75,7 +78,7 @@ def get_choices() -> dict[str, tuple[str, str]] :
 def get_choices_str():
     valsStr = ''
     for a, b in get_choices().items():
-        valsStr += f' {a} - {b[0]} {b[1]}\n'
+        valsStr += f' {a:3} -  {b[0]} {b[1]}\n'
     return valsStr
 
 choiceDict = get_choices()
@@ -181,7 +184,7 @@ class Extract_Links:
         fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
         
         # Parent directory
-        dirPath = os.path.join(get_desktop_path(), 'Extracted Links')
+        dirPath = get_saving_directory()
         if not os.path.exists(dirPath):
             os.makedirs(dirPath)
             
@@ -251,13 +254,18 @@ class Extract_Links:
         )   # Summary
 
     def show_about_data(self):
-        print(
-            f'{Fore.GREEN}'
-            "App Name: Links Extractor\n" \
-            "Creator: Hussain Abbas\n" \
-            f"App Webpage: {github_link}\n"
-            "Press <ctrl+c> any time to exit the app\n"
-        )
+        data = {
+            'app name': 'Links Extractor',
+            'saving directory': get_saving_directory(),
+            'creator': 'https://t.me/sayyid5416',
+            'app webpage': github_link,
+        }
+        statement = f'{Fore.GREEN}'
+        for a, b in data.items():
+            statement += f'{Fore.GREEN}{a.title():20} : {Fore.BLUE}{b}\n'
+        statement += f"{Fore.CYAN}Press <ctrl+c> any time to exit the app\n"
+        print(statement)
+
         update_check = self.takeUserInput('Check for updates? (y/n) ')
         print(f'{Fore.GREEN}', end='')
         if update_check.lower() in ['y', 'yes']:
