@@ -204,13 +204,11 @@ class Extract_Links:
         print(get_choices(asString=True))
         
         # Asking for user choice
-        question = f'Enter your choice ({"/".join(choiceDict)})'
-        choice = self.takeUserInput(question)
-        while choice not in choiceDict:
-            choice = self.takeUserInput(question)
-        print()
-        
-        return choice
+        while True:
+            choice = self.takeUserInput(f'Enter your choice ({"/".join(choiceDict)})')
+            if choice in choiceDict:
+                print()
+                return choice
     
     
     def mainExtraction(self):
