@@ -17,7 +17,18 @@ import re, threading, webbrowser, time, sys
 from datetime import datetime
 from typing import Callable
 from colorama import Fore
-import requests, winshell
+import requests
+
+
+
+def get_desktop_path():
+    desktop = os.path.join(
+        os.environ.get('USERPROFILE', '/'), 
+        'Desktop'
+    )
+    if not os.path.exists(desktop):
+        os.mkdir(desktop)
+    return desktop
 
 
 
@@ -170,7 +181,7 @@ class Extract_Links:
         fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
         
         # Parent directory
-        dirPath = os.path.join(winshell.desktop(), 'Extracted Links')
+        dirPath = os.path.join(get_desktop_path(), 'Extracted Links')
         if not os.path.exists(dirPath):
             os.makedirs(dirPath)
             
