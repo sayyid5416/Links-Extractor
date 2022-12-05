@@ -91,10 +91,10 @@ def switch_raw_setting():
 # Choices dict
 def get_choices() -> dict[str, tuple[str, str]] :
     return {
-        '1': ('[file] Web links', '(http/https)'),
-        '2': ('[file] FTP links', '(ftp)'),
-        '3': ('[file] MAIL links', '(mailto)'),
-        '4': ('[file] All types of links', ''),
+        '1': ('[File] Web links', '(http/https)'),
+        '2': ('[File] FTP links', '(ftp)'),
+        '3': ('[File] MAIL links', '(mailto)'),
+        '4': ('[File] All types of links', ''),
         'web': ('[Web-Crawl] All types of links', ''),
         'about': ('About', ''),
         'raw': ('Enable/Disable raw formatting of links', f'({get_current_settings()})')
@@ -209,13 +209,15 @@ class Extract_Links:
         
         # File path
         filePath = os.path.join(get_saving_directory(), fileName)
-        
+
         return filePath
     
     def get_extractedLinks(self, sourceData:str):
         """
         Returns: (`extracted-links`, `extraction-summary`)
         """
+        _userChoice = str(self.userChoice)
+        
         def getLinks(regex:str) -> set[str] :
             return set(re.findall(regex, sourceData, re.IGNORECASE))
         
@@ -225,8 +227,8 @@ class Extract_Links:
         mailLinks  = getLinks(r'(mailto: *[^("\s<>)]+)')               # mailto:[whitespaces]anything_until (' ', <, >)
 
         # Extracted links
-        if self.userChoice == 'web': self.userChoice = '4'
-        match self.userChoice:
+        if _userChoice == 'web': _userChoice = '4'
+        match _userChoice:
             case '1':   text, linksList = '◆ Web links:', webLinks
             case '2':   text, linksList = '◆ FTP links:', ftpLinks
             case '3':   text, linksList = '◆ Mail links:', mailLinks
@@ -235,7 +237,7 @@ class Extract_Links:
         
         # Extraction summary
         summaryDict = {text: len(linksList)}
-        if self.userChoice == '4':
+        if _userChoice == '4':
             summaryDict.update({'        • Web links:'  : len(webLinks)})
             summaryDict.update({'        • FTP links:'  : len(ftpLinks)})
             summaryDict.update({'        • Mail links:' : len(mailLinks)})
