@@ -13,10 +13,11 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, requests, winshell, webbrowser, time, sys
+import re, threading, webbrowser, time, sys
 from datetime import datetime
-from colorama import Fore
 from typing import Callable
+from colorama import Fore
+import requests, winshell
 
 
 
