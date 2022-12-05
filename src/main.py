@@ -27,11 +27,17 @@ def pp(text:str, fore=Fore.WHITE, end:str='\n'):
 def pp_info(text):
     return pp(text, Fore.GREEN)
 
+def pp_info_2(text):
+    return pp(text, Fore.CYAN)
+
+def pp_error(text):
+    return pp(text, Fore.LIGHTRED_EX)
+
 def pp_input(text):
     return pp(text, Fore.LIGHTBLUE_EX)
 
-def pp_error(text):
-    return pp(text, Fore.RED)
+def pp_question(text):
+    return input(f'{Fore.WHITE}{text}{Fore.LIGHTBLUE_EX}')
     
 
 
@@ -127,7 +133,7 @@ class Extract_Links:
     @D_error_catcher
     def __init__(self):
         # User choices
-        pp('', Fore.WHITE, end='')
+        pp(app_name.center(os.get_terminal_size().columns), end='\n\n')
         self.userChoice = self.getUserChoice()
         
         # Main Action
@@ -140,7 +146,6 @@ class Extract_Links:
     def getUserChoice(self):
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
-        print(app_name.center(os.get_terminal_size().columns))
         print(get_choices_str())
         
         # Asking for user choice
@@ -181,7 +186,7 @@ class Extract_Links:
     def takeUserInput(question:str, replaceList=[], web:bool=False):
         """ Asks user input & Returns: modified text """    
         # Input
-        x = input(f'{Fore.WHITE}> {question}: {Fore.LIGHTBLUE_EX}')
+        x = pp_question(f'> {question}: ')
         
         # Modifications
         if replaceList:
@@ -265,7 +270,7 @@ class Extract_Links:
             f.writelines(['‾'*100, '\n\n\n'])
         
         # Summary
-        pp(summaryStr, Fore.CYAN)
+        pp_info_2(summaryStr)
         pp_info(f'=> Data saved to "{fileLocation}"')
 
     def show_about_data(self):
@@ -279,7 +284,7 @@ class Extract_Links:
         for a, b in data.items():
             statement += f'{Fore.GREEN}{a.title():20} : {Fore.LIGHTBLUE_EX}{b}\n'
         print(statement)
-        pp('Press <ctrl+c> any time to exit the app\n', Fore.CYAN)
+        pp_info_2('Press <ctrl+c> any time to exit the app\n')
 
         update_check = self.takeUserInput('Check for updates? (y/n) ')
         if update_check.lower() in ['y', 'yes']:
