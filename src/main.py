@@ -20,6 +20,8 @@ from colorama import Fore
 import requests
 
 
+
+
 ## ---------------------------- Prints ---------------------------- ##
 def pp(text:str, fore=Fore.WHITE, end:str='\n'):
     return print(f'{fore}{text}{Fore.WHITE}', end=end)
@@ -279,7 +281,7 @@ class Extract_Links:
         data = {
             'app name': 'Links Extractor',
             'saving directory': get_saving_directory(),
-            'creator': 'https://t.me/sayyid5416',
+            'creator': os.path.split(github_link)[0],
             'app webpage': github_link,
         }
         statement = ''
