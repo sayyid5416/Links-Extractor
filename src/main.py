@@ -17,16 +17,16 @@ if __name__ == "__main__":
 import re, threading, webbrowser, time, sys, json
 from datetime import datetime
 from typing import Callable
-from colorama import Fore
+from colorama import *
 import requests
 
 
 
 
 ## ----------------------------------------------- Prints ------------------------------------------------ ##
-def pp(text:str, fore=Fore.WHITE, end:str='\n'):
+def pp(text:str, fore=Fore.WHITE, back=Back.RESET, end:str='\n'):
     return print(
-        f'{fore}{text}{Fore.WHITE}',
+        f'{fore}{back}{text}{Back.RESET}{Fore.RESET}',
         end=end
     )
 
@@ -45,7 +45,8 @@ def pp_info_2(text):
 def pp_error(text):
     return pp(
         text,
-        Fore.LIGHTRED_EX
+        Fore.WHITE,
+        Back.RED
     )
 
 def pp_input(text):
@@ -56,7 +57,7 @@ def pp_input(text):
 
 def pp_question(text):
     return input(
-        f'{Fore.WHITE}> {text}: {Fore.LIGHTBLUE_EX}'
+        f'{Fore.WHITE}{Back.BLUE}{Style.BRIGHT}> {text}:{Style.RESET_ALL}{Back.RESET}{Fore.LIGHTBLUE_EX} '
     )
     
 
@@ -271,7 +272,7 @@ class Choices:
                 ''
             ),
             'about': (
-                'About',
+                'About this app',
                 ''
             ),
             'raw': (
@@ -284,7 +285,7 @@ class Choices:
         """ Returns: Proper formatted string of all choices """
         choicesStr = ''
         for a, b in self._choices.items():
-            choicesStr += f' {a:5} -  {b[0]} {b[1]}\n'
+            choicesStr += f'• {a:5} : {b[0]} {b[1]}\n'
         return choicesStr
 
     def get(self):
@@ -330,7 +331,6 @@ class Extract_Links:
             case 'raw':     self.switch_raw_setting()
             case _:         self.mainExtraction()
     
-    
     def getUserChoice(self):
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
@@ -344,8 +344,7 @@ class Extract_Links:
             if self.availableChoices.have(choice):
                 print()
                 return choice
-    
-    
+        
     def mainExtraction(self):
         """ Main Links extraction """
         # Ask for source location -> Get its data
@@ -573,7 +572,7 @@ class Extract_Links:
 
     def show_about_data(self):
         data = {
-            'app name': 'Links Extractor',
+            'app name': app_name,
             'saving directory': get_saving_directory(),
             'settings file': self.settingsInstance.get_settings_file(),
             'creator': os.path.split(
@@ -583,9 +582,9 @@ class Extract_Links:
         }
         statement = ''
         for a, b in data.items():
-            statement += f'{Fore.GREEN}{a.title():20} : {Fore.LIGHTBLUE_EX}{b}\n'
-        print(statement)
-        pp_info_2('Press <ctrl+c> any time to exit the app\n')
+            statement += f'{Fore.GREEN}• {a.title():17} : {Fore.LIGHTBLUE_EX}{b}\n'
+        print(statement, end='')
+        pp_info_2(f'{" " * 15} (Press <ctrl+c> any time to exit the app)\n')
 
         update_check = self.takeUserInput(
             'Check for updates? (y/n) '
