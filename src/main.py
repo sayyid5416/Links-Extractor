@@ -606,7 +606,8 @@ class Extract_Links:
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
-    choicesInstance = Choices()
     while True:
-        Extract_Links(choicesInstance)
+        Extract_Links(
+            availableChoices=Choices()
+        )
         print('\n\n')
