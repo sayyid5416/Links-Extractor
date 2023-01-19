@@ -85,7 +85,7 @@ def get_saving_directory():
     return dirPath
 
 
-# Settings folder
+# Settings Folder & File
 _settingsDir = os.path.join(
     os.environ.get(
         'LOCALAPPDATA',
@@ -93,7 +93,6 @@ _settingsDir = os.path.join(
     ),
     'Links-Extractor'
 )
-# Settings file
 _settingsFile = os.path.join(
     _settingsDir,
     'links-extractor.json'
@@ -182,8 +181,7 @@ def switch_raw_setting():
 
 
 
-
-## ----------------------------------------------- Program ----------------------------------------------- ##
+## ----------------------------------------------- General ----------------------------------------------- ##
 def D_error_catcher(func:Callable):
     """ Decorator to catch errors """
     def wrapper(*args, **kwargs):
@@ -203,68 +201,116 @@ def D_error_catcher(func:Callable):
     return wrapper
 
 
-def get_choices(asString:bool=False):
-    """ Returns available choices 
-    - if `asString` is `True`: Returns a properly formatted string
+def multi_replace(
+    text: str,
+    old: list[str] | list[tuple[str, str]],
+    new: str='-',
+    count: int=-1
+):
+    """ Returns `text` after replacing all items of `old` with `new`
+    - If `old = list[tuple[str, str]]`: 
+        - `new` would be ignored.
+        - second item of tuple would replace first item
+    - `count`: 
+        - Maximum number of occurrences to replace. 
+        - Default = -1 : means replace all occurrences.
     """
-    # Settings
-    rawSetting = "ENABLED" if get_specific_setting('raw') else "DISABLED"
+    for i in old:
+        if isinstance(i, str):
+            text = text.replace(
+                i,
+                new, 
+                count
+            )
+        else:
+            text = text.replace(
+                i[0],
+                i[1],
+                count
+            )
+    return text
+
+
+
+## ----------------------------------------------- Program ----------------------------------------------- ##
+class Choices:
+    """ Class to handle the choices data """
     
-    # Choices
-    _choices :dict[str, tuple[str, str]] = {
-        '1': (
-            '[File] Web links', 
-            '(http/https)'
-        ),
-        '2': (
-            '[File] FTP links',
-            '(ftp)'
-        ),
-        '3': (
-            '[File] MAIL links',
-            '(mailto)'
-        ),
-        '4': (
-            '[File] All types of links',
-            ''
-        ),
-        'web': (
-            '[Web] All types of links', 
-            ''
-        ),
-        'about': (
-            'About',
-            ''
-        ),
-        'raw': (
-            'Enable/Disable raw formatting of links', 
-            f'({rawSetting})'
+    def __init__(self) -> None:
+        # Settings
+        rawSetting = self._get_setting('raw')
+        
+        # Choices
+        self._choices :dict[str, tuple[str, str]] = {
+            '1': (
+                '[File] Web links', 
+                '(http/https)'
+            ),
+            '2': (
+                '[File] FTP links',
+                '(ftp)'
+            ),
+            '3': (
+                '[File] MAIL links',
+                '(mailto)'
+            ),
+            '4': (
+                '[File] All types of links',
+                ''
+            ),
+            'web': (
+                '[Web] All types of links', 
+                ''
+            ),
+            'about': (
+                'About',
+                ''
+            ),
+            'raw': (
+                'Enable/Disable raw formatting of links', 
+                f'({rawSetting})'
+            )
+        }
+    
+    def get(self):
+        """ Returns: All available choices """
+        return self._choices
+    
+    def get_val(self, choice: str, default: tuple[str, str]=None):
+        """ Returns: Value of `choice` from all choices
+        - Returns: `default` if `choice` is not available in choices
+        """
+        return self._choices.get(
+            choice,
+            default if default else (None, None)
         )
-    }
     
-    # If as string:
-    if asString:
-        _stringChoices = ''
-        for a, b in _choices.items():
-            _stringChoices += f' {a:5} -  {b[0]} {b[1]}\n'
-        return _stringChoices
+    def have(self, choice:str):
+        """ Returns: `True` if choice is available in choices """
+        return choice in self._choices
     
-    return _choices
-
-
-_choiceDict = get_choices()
-if isinstance(_choiceDict, str):
-    raise TypeError(
-        f'"choiceDict" should be a "dict", and not a "str"'
-    )
-choiceDict = _choiceDict
+    def _get_setting(self, setting:str):
+        """ Returns: `Enabled/Disabled` based on the settings `setting` """
+        return "ENABLED" if get_specific_setting(
+            setting
+        ) else "DISABLED"
+    
+    def __str__(self) -> str:
+        """ Returns: Proper formatted string of all choices """
+        choicesStr = ''
+        for a, b in self._choices.items():
+            choicesStr += f' {a:5} -  {b[0]} {b[1]}\n'
+        return choicesStr
 
 
 
 class Extract_Links:
 
     @D_error_catcher
-    def __init__(self):
+    def __init__(self, availableChoices:Choices):
+        # Args
+        self.availableChoices = availableChoices
+        
         # User choices
         pp(
             app_name.center(
@@ -284,18 +330,14 @@ class Extract_Links:
     def getUserChoice(self):
         """ Show user the choices and returns dict and the user choice """
         # Printing choices
-        print(
-            get_choices(
-                asString=True
-            )
-        )
+        print(self.availableChoices)
         
         # Asking for user choice
         while True:
             choice = self.takeUserInput(
-                f'Enter your choice ({"/".join(choiceDict)})'
+                f'Enter your choice ({"/".join(self.availableChoices.get())})'
             )
-            if choice in choiceDict:
+            if self.availableChoices.have(choice):
                 print()
                 return choice
     
@@ -356,15 +398,12 @@ class Extract_Links:
     def takeUserInput(question: str, replaceList: list[tuple[str, str]]=[], web: bool=False):
         """ Asks user input & Returns: modified text """    
         # Input
-        x = pp_question(question)
-        
-        # Modifications
-        if replaceList:
-            for i in replaceList:
-                x = x.replace(
-                    i[0],
-                    i[1]
-                )
+        x = multi_replace(
+            text=pp_question(
+                question
+            ),
+            old=replaceList
+        )                                                                       # Also replace items according to replaceList
         if web and '://' not in x:
             x = 'https://' + x
 
@@ -373,23 +412,26 @@ class Extract_Links:
     def get_filePath(self):
         """ Returns: File location where extracted links would be saved """
         # File Name
-        fileName = self.sourcePath
-        for i in [
-            '\\',
-            '/',
-            ':',
-            '*',
-            '?',
-            '"',
-            '<',
-            '>',
-            '|'
-        ]:
-            fileName = fileName.replace(
-                i, 
-                '-'
-            )
-        fileName = f'{choiceDict[self.userChoice][0]} - {fileName}.txt'
+        fileName = multi_replace(
+            self.sourcePath,
+            old=[
+                '\\',
+                '/',
+                ':',
+                '*',
+                '?',
+                '"',
+                '<',
+                '>',
+                '|'
+            ],
+            new='-'
+        )
+        fileName = str(
+            self.availableChoices.get_val(
+                self.userChoice
+            )[0]
+        ) + f' - {fileName}.txt'
         
         # File path
         return os.path.join(
@@ -564,6 +606,7 @@ class Extract_Links:
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
+    choicesInstance = Choices()
     while True:
-        Extract_Links()
+        Extract_Links(choicesInstance)
         print('\n\n')
