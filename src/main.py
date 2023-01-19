@@ -267,7 +267,7 @@ class Choices:
                 ''
             ),
             'web': (
-                '[Web] All types of links', 
+                '[Web ] All types of links', 
                 ''
             ),
             'about': (
@@ -553,13 +553,13 @@ class Extract_Links:
             for i, link in enumerate(extractedLinks, start=1):
                 threading.Thread(
                     target=lambda: pp_info(
-                        f'{i} -- Extracted -- {link}'
+                        f'[{i}] {link}'
                     )
                 ).start()
                 if rawEnabled:
                     f.write(f'{link}\n')
                 else:
-                    f.write(f'    {i} - {link}\n')
+                    f.write(f'    [{i}] {link}\n')
             f.writelines(
                 [
                     '‾' * 100, 
