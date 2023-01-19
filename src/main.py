@@ -2,6 +2,7 @@
 import os
 
 
+# App data 
 app_name = 'Links Extractor'
 github_link = 'https://github.com/sayyid5416/Links-Extractor'
 
@@ -22,7 +23,7 @@ import requests
 
 
 
-## ----------------------------------------------- Prints ----------------------------------------------- ##
+## ----------------------------------------------- Prints ------------------------------------------------ ##
 def pp(text:str, fore=Fore.WHITE, end:str='\n'):
     return print(
         f'{fore}{text}{Fore.WHITE}',
@@ -58,126 +59,6 @@ def pp_question(text):
         f'{Fore.WHITE}> {text}: {Fore.LIGHTBLUE_EX}'
     )
     
-
-
-## ----------------------------------------------- Directory ----------------------------------------------- ##
-def get_desktop_path():
-    """ Returns: Desktop path, create if not exist """
-    desktop = os.path.join(
-        os.environ.get(
-            'USERPROFILE',
-            '/'
-        ), 
-        'Desktop'
-    )
-    if not os.path.exists(desktop):
-        os.makedirs(desktop)
-    return desktop
-
-def get_saving_directory():
-    """ Returns: Path of directory where extracted links will be saved , create if not exist """
-    dirPath =  os.path.join(
-        get_desktop_path(),
-        'Extracted Links'
-    )
-    if not os.path.exists(dirPath):
-        os.makedirs(dirPath)
-    return dirPath
-
-
-# Settings Folder & File
-_settingsDir = os.path.join(
-    os.environ.get(
-        'LOCALAPPDATA',
-        'App-Data'
-    ),
-    'Links-Extractor'
-)
-_settingsFile = os.path.join(
-    _settingsDir,
-    'links-extractor.json'
-)
-
-
-
-## ----------------------------------------------- Settings ----------------------------------------------- ##
-_default_settings = {
-    'raw': False
-}
-
-
-def get_settings_file():
-    """ Returns settings file path
-    - Handles if filepath doesn't exist
-    """
-    # Create settings folder -> If missing
-    if not os.path.exists(_settingsDir):
-        os.makedirs(_settingsDir)
-    
-    # Write default settings file -> If missing
-    if not os.path.exists(_settingsFile):
-        with open(_settingsFile, 'w') as f:
-            json.dump(
-                _default_settings,
-                f,
-                indent=4,
-                sort_keys=True
-            )
-    
-    return _settingsFile
-
-
-def get_current_settings() -> dict[str, bool] :
-    """ Returns: all current settings """
-    with open(get_settings_file(), 'r') as f:
-        return json.load(
-            f
-        )
-
-
-def get_specific_setting(setting:str):
-    """ Returns value of `setting` from current settings """
-    settings = get_current_settings()
-    return settings.get(
-        setting,
-        _default_settings.get(
-            setting, 
-            False
-        )
-    )
-
-
-def set_settings(setting:str, value:bool):
-    """ Sets a new setting """
-    # Settings
-    settings = get_current_settings()                                                       # current settings
-    settings.update(
-        {
-            setting: value
-        }
-    )                                                                                       # updated settings
-    # Save new settings
-    with open(get_settings_file(), 'w') as f:
-        json.dump(
-            settings,
-            f,
-            indent=4,
-            sort_keys=True
-        )
-    
-
-## ------------- Settings
-def switch_raw_setting():
-    """ Enable / Disable raw settings """
-    oldRawSetting = get_specific_setting('raw')
-    newRawSetting = not oldRawSetting
-    set_settings(
-        'raw',
-        newRawSetting
-    )
-    pp_info(
-        f'[Raw formatting {"ENABLED" if newRawSetting else "DISABLED"}]'
-    )
 
 
 
@@ -231,14 +112,141 @@ def multi_replace(
     return text
 
 
+def get_desktop_path():
+    """ Returns: Desktop path, create if not exist """
+    desktop = os.path.join(
+        os.environ.get(
+            'USERPROFILE',
+            '/'
+        ), 
+        'Desktop'
+    )
+    if not os.path.exists(desktop):
+        os.makedirs(desktop)
+    return desktop
+
+
+def get_saving_directory():
+    """ Returns: Path of directory where extracted links will be saved , create if not exist """
+    dirPath =  os.path.join(
+        get_desktop_path(),
+        'Extracted Links'
+    )
+    if not os.path.exists(dirPath):
+        os.makedirs(dirPath)
+    return dirPath
+
+
+
 
 ## ----------------------------------------------- Program ----------------------------------------------- ##
-class Choices:
-    """ Class to handle the choices data """
+class Settings:
+    """ Handles all settings related functions """
     
     def __init__(self) -> None:
+        # Default settings
+        self._default_settings = {
+            'raw': False
+        }
+        
+        # Settings Folder & File
+        self._settingsDir = os.path.join(
+            os.environ.get(
+                'LOCALAPPDATA',
+                'App-Data'
+            ),
+            'Links-Extractor'
+        )
+        self._settingsFile = os.path.join(
+            self._settingsDir,
+            'links-extractor.json'
+        )
+    
+    def get_settings_file(self):
+        """ Returns: Path of settings file
+        - Also create it & it's folder, if not present
+        """
+        self._handle_missing_settings()
+        return self._settingsFile
+    
+    def get_all_settings(self) -> dict[str, bool] :
+        """ Returns: All current settings """
+        with open(self.get_settings_file(), 'r') as f:
+            return json.load(
+                f
+            )
+
+    def get_setting(self, setting: str):
+        """ Returns value of `setting` from current settings 
+        - If setting not available, value from default settings will be returned
+        """
+        return self.get_all_settings().get(
+            setting
+        ) or self._get_specific_setting_default(
+            setting
+        )
+    
+    def get_setting_str(self, setting: str):
+        """ Returns: `Enabled/Disabled` based on the `setting` """
+        return "ENABLED" if self.get_setting(
+            setting
+        ) else "DISABLED"
+
+    def set_setting(self, setting: str, value: bool):
+        """ Sets a new `value` for `setting` """
         # Settings
-        rawSetting = self._get_setting('raw')
+        currentSettings = self.get_all_settings()                                           # current settings
+        currentSettings.update(
+            {
+                setting: value
+            }
+        )                                                                                       # updated settings
+        # Save new settings
+        self._overwrite_settings_file(
+            currentSettings,
+            self.get_settings_file()
+        )
+        
+
+    ## ------------------------------- Internal functions ------------------------------- ##
+    def _overwrite_settings_file(self, settingsDict: dict[str, bool], settingsFilePath: str):
+        """ This function overwrites the settings file at `settingsFilePath` with `settingsDict` """
+        with open(settingsFilePath, 'w') as f:
+            json.dump(
+                settingsDict,
+                f,
+                indent=4,
+                sort_keys=True
+            )
+    
+    def _get_specific_setting_default(self, setting: str):
+        """ Return: Value of `setting` from default settings """
+        return self._default_settings.get(
+            setting,
+            False
+        )
+    
+    def _handle_missing_settings(self):
+        """ Create settings file (with default settings) and its folder, if missing """
+        # Create settings folder -> If missing
+        if not os.path.exists(self._settingsDir):
+            os.makedirs(self._settingsDir)
+        
+        # Write default settings file -> If missing
+        if not os.path.exists(self._settingsFile):
+            self._overwrite_settings_file(
+                self._default_settings,
+                self._settingsFile
+            )
+
+
+
+class Choices:
+    """ Handles choices related data """
+    
+    def __init__(self, settingsInstance:Settings) -> None:
+        # Settings
+        rawSetting = settingsInstance.get_setting_str('raw')
         
         # Choices
         self._choices :dict[str, tuple[str, str]] = {
@@ -272,11 +280,18 @@ class Choices:
             )
         }
     
+    def __str__(self) -> str:
+        """ Returns: Proper formatted string of all choices """
+        choicesStr = ''
+        for a, b in self._choices.items():
+            choicesStr += f' {a:5} -  {b[0]} {b[1]}\n'
+        return choicesStr
+
     def get(self):
         """ Returns: All available choices """
         return self._choices
     
-    def get_val(self, choice: str, default: tuple[str, str]=None):
+    def get_val(self, choice: str, default: tuple[str, str] | None=None):
         """ Returns: Value of `choice` from all choices
         - Returns: `default` if `choice` is not available in choices
         """
@@ -288,28 +303,17 @@ class Choices:
     def have(self, choice:str):
         """ Returns: `True` if choice is available in choices """
         return choice in self._choices
-    
-    def _get_setting(self, setting:str):
-        """ Returns: `Enabled/Disabled` based on the settings `setting` """
-        return "ENABLED" if get_specific_setting(
-            setting
-        ) else "DISABLED"
-    
-    def __str__(self) -> str:
-        """ Returns: Proper formatted string of all choices """
-        choicesStr = ''
-        for a, b in self._choices.items():
-            choicesStr += f' {a:5} -  {b[0]} {b[1]}\n'
-        return choicesStr
 
 
 
 class Extract_Links:
+    """ Handles Links extraction """  
 
     @D_error_catcher
-    def __init__(self, availableChoices:Choices):
+    def __init__(self, availableChoices:Choices, settingsInstance:Settings):
         # Args
         self.availableChoices = availableChoices
+        self.settingsInstance = settingsInstance
         
         # User choices
         pp(
@@ -323,7 +327,7 @@ class Extract_Links:
         # Main Action
         match self.userChoice:
             case 'about':   self.show_about_data()
-            case 'raw':     switch_raw_setting()
+            case 'raw':     self.switch_raw_setting()
             case _:         self.mainExtraction()
     
     
@@ -525,7 +529,7 @@ class Extract_Links:
         Function to write extracted links to a new file
         """
         fileLocation = self.get_filePath()
-        rawEnabled = get_specific_setting('raw')
+        rawEnabled = self.settingsInstance.get_setting('raw')
         with open(fileLocation, 'a+', encoding='utf-8') as f:
             # Summary
             currentTime = datetime.now().strftime(
@@ -571,7 +575,7 @@ class Extract_Links:
         data = {
             'app name': 'Links Extractor',
             'saving directory': get_saving_directory(),
-            'settings file': get_settings_file(),
+            'settings file': self.settingsInstance.get_settings_file(),
             'creator': os.path.split(
                 github_link
             )[0],
@@ -600,14 +604,32 @@ class Extract_Links:
         else:
             pp_info('[Skipped]')
 
+    def switch_raw_setting(self):
+        """ Enable / Disable raw settings """
+        oldRawSetting = self.settingsInstance.get_setting('raw')
+        newRawSetting = not oldRawSetting
+        self.settingsInstance.set_setting(
+            'raw',
+            newRawSetting
+        )
+        pp_info(
+            f'[Raw formatting {self.settingsInstance.get_setting_str("raw")}]'
+        )
+
+
 
 
 
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
+    settingsInst = Settings()
     while True:
+        choicesInst = Choices(
+            settingsInstance=Settings()
+        )
         Extract_Links(
-            availableChoices=Choices()
+            availableChoices=choicesInst,
+            settingsInstance=settingsInst
         )
         print('\n\n')
