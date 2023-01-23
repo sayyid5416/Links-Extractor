@@ -14,9 +14,10 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, webbrowser, time, sys, json
+import re, threading, webbrowser, time, sys
 from datetime import datetime
 from typing import Callable
+from pygeneral import Settings as gSettings
 from colorama import *
 import requests
 
@@ -141,104 +142,14 @@ def get_saving_directory():
 
 
 ## ----------------------------------------------- Program ----------------------------------------------- ##
-class Settings:
+class Settings(gSettings):
     """ Handles all settings related functions """
-    
-    def __init__(self) -> None:
-        # Default settings
-        self._default_settings = {
-            'raw': False
-        }
-        
-        # Settings Folder & File
-        self._settingsDir = os.path.join(
-            os.environ.get(
-                'LOCALAPPDATA',
-                'App-Data'
-            ),
-            'Links-Extractor'
-        )
-        self._settingsFile = os.path.join(
-            self._settingsDir,
-            'links-extractor.json'
-        )
-    
-    def get_settings_file(self):
-        """ Returns: Path of settings file
-        - Also create it & it's folder, if not present
-        """
-        self._handle_missing_settings()
-        return self._settingsFile
-    
-    def get_all_settings(self) -> dict[str, bool] :
-        """ Returns: All current settings """
-        with open(self.get_settings_file(), 'r') as f:
-            return json.load(
-                f
-            )
-
-    def get_setting(self, setting: str):
-        """ Returns value of `setting` from current settings 
-        - If setting not available, value from default settings will be returned
-        """
-        return self.get_all_settings().get(
-            setting
-        ) or self._get_specific_setting_default(
-            setting
-        )
     
     def get_setting_str(self, setting: str):
         """ Returns: `Enabled/Disabled` based on the `setting` """
         return "ENABLED" if self.get_setting(
             setting
         ) else "DISABLED"
-
-    def set_setting(self, setting: str, value: bool):
-        """ Sets a new `value` for `setting` """
-        # Settings
-        currentSettings = self.get_all_settings()                                           # current settings
-        currentSettings.update(
-            {
-                setting: value
-            }
-        )                                                                                       # updated settings
-        # Save new settings
-        self._overwrite_settings_file(
-            currentSettings,
-            self.get_settings_file()
-        )
-        
-
-    ## ------------------------------- Internal functions ------------------------------- ##
-    def _overwrite_settings_file(self, settingsDict: dict[str, bool], settingsFilePath: str):
-        """ This function overwrites the settings file at `settingsFilePath` with `settingsDict` """
-        with open(settingsFilePath, 'w') as f:
-            json.dump(
-                settingsDict,
-                f,
-                indent=4,
-                sort_keys=True
-            )
-    
-    def _get_specific_setting_default(self, setting: str):
-        """ Return: Value of `setting` from default settings """
-        return self._default_settings.get(
-            setting,
-            False
-        )
-    
-    def _handle_missing_settings(self):
-        """ Create settings file (with default settings) and its folder, if missing """
-        # Create settings folder -> If missing
-        if not os.path.exists(self._settingsDir):
-            os.makedirs(self._settingsDir)
-        
-        # Write default settings file -> If missing
-        if not os.path.exists(self._settingsFile):
-            self._overwrite_settings_file(
-                self._default_settings,
-                self._settingsFile
-            )
 
 
 
@@ -574,7 +485,7 @@ class Extract_Links:
         data = {
             'app name': app_name,
             'saving directory': get_saving_directory(),
-            'settings file': self.settingsInstance.get_settings_file(),
+            'settings file': self.settingsInstance.settings_file_path,
             'creator': os.path.split(
                 github_link
             )[0],
@@ -607,7 +518,7 @@ class Extract_Links:
         """ Enable / Disable raw settings """
         oldRawSetting = self.settingsInstance.get_setting('raw')
         newRawSetting = not oldRawSetting
-        self.settingsInstance.set_setting(
+        self.settingsInstance.update_setting(
             'raw',
             newRawSetting
         )
@@ -622,7 +533,23 @@ class Extract_Links:
 
 ############################################################################################## Run Main Program
 if __name__ == "__main__":
-    settingsInst = Settings()
+    # Initiate settings
+    defaultSettings = {
+        'raw': False
+    }
+    settingsDir = os.path.join(
+        os.environ.get(
+            'LOCALAPPDATA', 'App-Data'
+        ),
+        app_name.replace(' ', '-')
+    )
+    settingsInst = Settings(
+        default_settings=defaultSettings,
+        settings_directory=settingsDir,
+        settings_file_name=f"{app_name.lower().replace(' ', '-')}.json"
+    )
+    
+    # Program
     while True:
         choicesInst = Choices(
             settingsInstance=settingsInst
