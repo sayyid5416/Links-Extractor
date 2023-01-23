@@ -17,7 +17,7 @@ if __name__ == "__main__":
 import re, threading, webbrowser, time, sys
 from datetime import datetime
 from typing import Callable
-from pygeneral import Settings as gSettings
+from generalpy import Settings as gSettings
 from colorama import *
 import requests
 
