@@ -625,7 +625,7 @@ if __name__ == "__main__":
     settingsInst = Settings()
     while True:
         choicesInst = Choices(
-            settingsInstance=Settings()
+            settingsInstance=settingsInst
         )
         Extract_Links(
             availableChoices=choicesInst,
