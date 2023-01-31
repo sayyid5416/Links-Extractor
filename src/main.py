@@ -15,11 +15,14 @@ if __name__ == "__main__":
 
 # Imports
 import re, threading, webbrowser, time, sys
+import requests
 from datetime import datetime
 from typing import Callable
-from generalpy import Settings as gSettings
+from generalpy import (
+    replace_multiple_chars,
+    Settings as gSettings
+)
 from colorama import *
-import requests
 
 
 
@@ -82,36 +85,6 @@ def D_error_catcher(func:Callable):
         except Exception as e:
             pp_error(f'=> [Error] {e}, Try again...')
     return wrapper
-
-
-def multi_replace(
-    text: str,
-    old: list[str] | list[tuple[str, str]],
-    new: str='-',
-    count: int=-1
-):
-    """ Returns `text` after replacing all items of `old` with `new`
-    - If `old = list[tuple[str, str]]`: 
-        - `new` would be ignored.
-        - second item of tuple would replace first item
-    - `count`: 
-        - Maximum number of occurrences to replace. 
-        - Default = -1 : means replace all occurrences.
-    """
-    for i in old:
-        if isinstance(i, str):
-            text = text.replace(
-                i,
-                new, 
-                count
-            )
-        else:
-            text = text.replace(
-                i[0],
-                i[1],
-                count
-            )
-    return text
 
 
 def get_desktop_path():
@@ -312,7 +285,7 @@ class Extract_Links:
     def takeUserInput(question: str, replaceList: list[tuple[str, str]]=[], web: bool=False):
         """ Asks user input & Returns: modified text """    
         # Input
-        x = multi_replace(
+        x = replace_multiple_chars(
             text=pp_question(
                 question
             ),
@@ -326,7 +299,7 @@ class Extract_Links:
     def get_filePath(self):
         """ Returns: File location where extracted links would be saved """
         # File Name
-        fileName = multi_replace(
+        fileName = replace_multiple_chars(
             self.sourcePath,
             old=[
                 '\\',
