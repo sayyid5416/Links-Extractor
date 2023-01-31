@@ -14,15 +14,19 @@ if __name__ == "__main__":
 
 
 # Imports
-import re, threading, webbrowser, time, sys
+import re
 import requests
+import sys
+import time
+import webbrowser
+from colorama import *
 from datetime import datetime
-from typing import Callable
 from generalpy import (
     replace_multiple_chars,
-    Settings as gSettings
+    run_threaded,
+    Settings as AppSettings
 )
-from colorama import *
+from typing import Callable
 
 
 
@@ -115,7 +119,7 @@ def get_saving_directory():
 
 
 ## ----------------------------------------------- Program ----------------------------------------------- ##
-class Settings(gSettings):
+class Settings(AppSettings):
     """ Handles all settings related functions """
     
     def get_setting_str(self, setting: str):
@@ -272,12 +276,7 @@ class Extract_Links:
             retData[0],
             retData[1]
         )
-        threading.Thread(
-            target=lambda: os.system(
-                f'""{self.get_filePath()}""'
-            ),
-            daemon=True
-        ).start()
+        self._run_system_cmd(f'""{self.get_filePath()}""')
 
 
     ## -------------------------------------------- Others -------------------------------------------- ##
@@ -411,6 +410,10 @@ class Extract_Links:
         """
         Function to write extracted links to a new file
         """
+        @run_threaded(name='Print')
+        def print_it(text: str):
+            pp_info(text)
+
         fileLocation = self.get_filePath()
         rawEnabled = self.settingsInstance.get_setting('raw')
         with open(fileLocation, 'a+', encoding='utf-8') as f:
@@ -434,11 +437,9 @@ class Extract_Links:
             
             # Links
             for i, link in enumerate(extractedLinks, start=1):
-                threading.Thread(
-                    target=lambda: pp_info(
-                        f'[{i}] {link}'
-                    )
-                ).start()
+                print_it(
+                    f'[{i}] {link}'
+                )
                 if rawEnabled:
                     f.write(f'{link}\n')
                 else:
@@ -474,14 +475,9 @@ class Extract_Links:
             'Check for updates? (y/n) '
         )
         if update_check.lower() in [
-            'y', 
-            'yes'
+            'y', 'yes'
         ]:
-            threading.Thread(
-                target=lambda: webbrowser.open(
-                    f'{github_link}/releases/latest'
-                )
-            ).start()
+            self._open_web_page(f'{github_link}/releases/latest')
             pp_info('[Opening the app update page....]\n\n')
             time.sleep(2)
         else:
@@ -500,6 +496,18 @@ class Extract_Links:
         )
 
 
+    ## -------------------------------------------- Others -------------------------------------------- ##
+    @run_threaded(name='Open webpage', daemon=False)
+    @staticmethod
+    def _open_web_page(link: str):
+        webbrowser.open(link)
+    
+    @run_threaded(name='Run system command')
+    @staticmethod
+    def _run_system_cmd(cmd: str):
+        os.system(cmd)
+    
+    
 
 
 
