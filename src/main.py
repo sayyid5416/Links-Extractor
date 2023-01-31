@@ -284,16 +284,15 @@ class Extract_Links:
     def takeUserInput(question: str, replaceList: list[tuple[str, str]]=[], web: bool=False):
         """ Asks user input & Returns: modified text """    
         # Input
-        x = replace_multiple_chars(
-            text=pp_question(
-                question
-            ),
+        inputValue = replace_multiple_chars(
+            text=pp_question(question),
             old=replaceList
         )                                                                       # Also replace items according to replaceList
-        if web and '://' not in x:
-            x = 'https://' + x
-
-        return x
+        if web and not inputValue.startswith(
+            ('http://', 'https://',)
+        ):
+            inputValue = f'https://{inputValue}'
+        return inputValue
 
     def get_filePath(self):
         """ Returns: File location where extracted links would be saved """
