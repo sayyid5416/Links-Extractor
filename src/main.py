@@ -1,5 +1,6 @@
 # Imports
 import os
+import string
 
 
 # App data 
@@ -300,15 +301,7 @@ class Extract_Links:
         fileName = replace_multiple_chars(
             self.sourcePath,
             old=[
-                '\\',
-                '/',
-                ':',
-                '*',
-                '?',
-                '"',
-                '<',
-                '>',
-                '|'
+                i for i in string.punctuation
             ],
             new='-'
         )
